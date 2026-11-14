@@ -36,15 +36,6 @@
     var nextUrl = nextInput ? nextInput.value : "";
     if (nextUrl && nextUrl.charAt(0) !== "/") nextUrl = "";
 
-    document.querySelectorAll("[data-demo-email]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        form.email.value = button.dataset.demoEmail;
-        form.password.value = "Demo@12345";
-        clearAlert(errorBox);
-        form.password.focus();
-      });
-    });
-
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
       clearAlert(errorBox);
@@ -193,21 +184,20 @@
         var data = await EIP.post(endpointFor(mode), payload);
         form.classList.add("hidden");
         var delivery = (data.verification && data.verification.delivery) || "";
-        var devLink = data.verification && data.verification.dev_link;
+        var devCode = data.verification && data.verification.dev_code;
+        var verifyUrl = "/verify-email?email=" + encodeURIComponent(data.user.email || "");
         var html =
           '<div class="auth-head"><h1>Check your email</h1><p>' + EIP.escape(data.message || "Registration submitted.") + "</p></div>" +
           '<div class="alert info">' +
-          "Account status: " + EIP.escape(EIP.titleCase(data.user.account_status)) + " · " +
+          "Account status: " + EIP.escape(EIP.titleCase(data.user.account_status)) + " A� " +
           "Verification: " + EIP.escape(delivery || "email") +
           "</div>";
-        if (devLink) {
+        if (devCode) {
           html += '<div class="alert warning" style="margin-top:0.7rem">' +
-            "Demo environment: no email provider is configured, so use this verification link.<br>" +
-            '<a href="' + EIP.escape(devLink) + '">Verify my email address</a></div>';
+            "Demo environment: use verification code <strong>" + EIP.escape(devCode) + "</strong>.</div>";
         }
         html += '<div class="form-actions" style="margin-top:1rem">' +
-          '<a class="btn btn-primary" href="' + (devLink ? EIP.escape(devLink) : "/login") + '">' +
-          (devLink ? "Verify email" : "Go to sign in") + "</a>" +
+          '<a class="btn btn-primary" href="' + EIP.escape(verifyUrl) + '">Enter verification code</a>' +
           '<a class="btn btn-outline" href="/login">Sign in</a></div>';
         resultCard.innerHTML = html;
         resultCard.classList.remove("hidden");
@@ -224,25 +214,85 @@
     var status = document.getElementById("verify-status");
     if (!status) return;
     var token = document.body.dataset.token || "";
-    if (!token) {
-      status.className = "alert warning";
-      status.innerHTML = "This verification link is missing its token. " +
-        '<a href="/login">Sign in</a> or register again to receive a fresh link.';
+    var form = document.getElementById("verify-form");
+    var emailInput = document.getElementById("verify-email");
+    var codeInput = document.getElementById("verify-code");
+    var submit = document.getElementById("verify-submit");
+    var resend = document.getElementById("verify-resend");
+
+    if (token && form) {
+      form.classList.add("hidden");
+      (async function () {
+        try {
+          await EIP.post("/api/auth/verify-email", { token: token });
+          status.className = "alert success";
+          status.innerHTML = "Email verified. Your registration is now waiting for administrator approval. " +
+            '<a href="/login">Sign in to check status</a>.';
+          EIP.toast("Email verified.", "success");
+        } catch (err) {
+          status.className = "alert danger";
+          status.innerHTML = EIP.escape(err.message) + ' <a href="/login">Back to sign in</a>';
+        }
+      })();
       return;
     }
 
-    (async function () {
+    if (!form) return;
+    var message = function (text, kind) {
+      status.className = "alert " + (kind || "info");
+      status.textContent = text;
+    };
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      var email = emailInput.value.trim();
+      var code = codeInput.value.trim();
+      if (!email || !/^\d{6}$/.test(code)) {
+        message("Enter your email and the 6-digit code.", "warning");
+        return;
+      }
+      EIP.setBusy(submit, true, "Verifying...");
       try {
-        await EIP.post("/api/auth/verify-email", { token: token });
+        await EIP.post("/api/auth/verify-otp", { email: email, code: code });
         status.className = "alert success";
         status.innerHTML = "Email verified. Your registration is now waiting for administrator approval. " +
           '<a href="/login">Sign in to check status</a>.';
         EIP.toast("Email verified.", "success");
+        form.classList.add("hidden");
+        setTimeout(function () { window.location.href = "/login"; }, 1800);
       } catch (err) {
-        status.className = "alert danger";
-        status.innerHTML = EIP.escape(err.message) + ' <a href="/login">Back to sign in</a>';
+        EIP.setBusy(submit, false);
+        var suffix = "";
+        if (err.details && err.details.attempts_remaining !== undefined) {
+          suffix = " Attempts remaining: " + err.details.attempts_remaining + ".";
+        }
+        message(err.message + suffix, "danger");
       }
-    })();
+    });
+
+    resend.addEventListener("click", async function () {
+      var email = emailInput.value.trim();
+      if (!email) {
+        message("Enter your email address first.", "warning");
+        emailInput.focus();
+        return;
+      }
+      EIP.setBusy(resend, true, "Sending...");
+      try {
+        var data = await EIP.post("/api/auth/resend-otp", { email: email });
+        var demo = document.getElementById("verify-demo");
+        if (data && data.dev_code) {
+          demo.innerHTML = "Demo environment code: <strong>" + EIP.escape(data.dev_code) + "</strong>";
+          demo.classList.remove("hidden");
+        }
+        message("A new verification code has been sent.", "success");
+      } catch (err) {
+        var wait = err.details && err.details.retry_after_seconds;
+        message(err.message + (wait ? " Try again in " + wait + " seconds." : ""), "danger");
+      } finally {
+        EIP.setBusy(resend, false);
+      }
+    });
   }
 
   document.addEventListener("DOMContentLoaded", function () {

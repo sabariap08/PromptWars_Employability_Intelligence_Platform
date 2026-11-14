@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var state = { bundle: null, careers: [] };
+  var state = { bundle: null, careers: [], editing: false };
 
   function alertBox(message, type) {
     var box = document.getElementById("profile-alert");
@@ -13,6 +13,23 @@
 
   function clearAlert() {
     document.getElementById("profile-alert").classList.add("hidden");
+  }
+
+  function setEditable(value) {
+    state.editing = value;
+    var selector = [
+      "#profile-form input", "#profile-form select", "#profile-form textarea", "#profile-form button",
+      "#skill-form input", "#skill-form select", "#skill-form button",
+      "#cert-form input", "#cert-form select", "#cert-form textarea", "#cert-form button",
+      "#project-form input", "#project-form select", "#project-form textarea", "#project-form button",
+    ].join(", ");
+    document.querySelectorAll(selector).forEach(function (control) {
+      if (control.id === "profile-name" || control.id === "profile-email") return;
+      control.disabled = !value;
+    });
+    var button = document.getElementById("profile-edit");
+    button.textContent = value ? "Done editing" : "Edit profile";
+    button.className = "btn " + (value ? "btn-primary" : "btn-outline") + " btn-sm";
   }
 
   function field(label, id, value, type, placeholder) {
@@ -158,6 +175,7 @@
   function load() {
     return Promise.all([EIP.get("/api/learner/profile"), EIP.get("/api/public/careers")]).then(function (results) {
       fill(results[0], results[1].careers || []);
+      if (!state.editing) setEditable(false);
     });
   }
 
@@ -189,6 +207,13 @@
   }
 
   function wire() {
+    document.getElementById("profile-edit").addEventListener("click", function () {
+      setEditable(!state.editing);
+      if (state.editing) {
+        EIP.toast("Profile unlocked. Remember to save your changes.", "info");
+      }
+    });
+
     var form = document.getElementById("profile-form");
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -203,6 +228,7 @@
           EIP.toast("Agents updated your plan: " + result.workflow.map(function (run) { return run.label; }).join(", "), "info", 6000);
         }
         await load();
+        setEditable(false);
       } catch (err) {
         EIP.setBusy(submit, false);
         alertBox(err.message);
@@ -231,6 +257,10 @@
     document.getElementById("skills-list").addEventListener("click", async function (event) {
       var button = event.target.closest("[data-remove-skill]");
       if (!button) return;
+      if (!state.editing) {
+        EIP.toast("Choose Edit profile to change your skills.", "warning");
+        return;
+      }
       var ok = await EIP.confirmModal({
         title: "Remove skill",
         message: "This removes the skill and its self-reported evidence from your profile.",
@@ -301,6 +331,10 @@
     document.getElementById("cert-list").addEventListener("click", async function (event) {
       var button = event.target.closest("[data-verify-cert]");
       if (!button) return;
+      if (!state.editing) {
+        EIP.toast("Choose Edit profile to start a verification check.", "warning");
+        return;
+      }
       try {
         await EIP.post("/api/assessments/certifications/" + button.dataset.verifyCert + "/verify", {});
         EIP.toast("Verification check ready. Opening assessments…", "success");
@@ -313,6 +347,10 @@
     document.getElementById("project-list").addEventListener("click", async function (event) {
       var button = event.target.closest("[data-followup]");
       if (!button) return;
+      if (!state.editing) {
+        EIP.toast("Choose Edit profile to create a follow-up check.", "warning");
+        return;
+      }
       try {
         await EIP.post("/api/assessments/projects/" + button.dataset.followup + "/follow-up", {});
         EIP.toast("Follow-up assessment created. Opening assessments…", "success");

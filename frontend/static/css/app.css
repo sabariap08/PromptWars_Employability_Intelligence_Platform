@@ -282,10 +282,7 @@ td.actions .btn { margin-right: 0.3rem; }
 .role-card li { margin-bottom: 0.2rem; }
 .demo-box { background: #0c2b27; color: #d8e7e3; border-radius: var(--radius-lg); padding: 1.4rem; }
 .demo-box h2 { color: #fff; }
-.demo-box code { background: rgba(255, 255, 255, 0.1); padding: 0.1rem 0.35rem; border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; color: #ffe2b8; }
-.demo-list { display: grid; gap: 0.5rem; margin-top: 0.8rem; }
-.demo-list .row-item { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.5rem 0.6rem; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 7px; font-size: 0.85rem; }
-.demo-list .row-item span:first-child { color: #a9c4be; }
+.demo-box .list-plain li { border-color: rgba(255, 255, 255, 0.12); }
 .site-footer { border-top: 1px solid var(--border); background: var(--surface); padding: 1.6rem 0; color: var(--muted); font-size: 0.85rem; }
 
 /* Auth */
@@ -296,8 +293,6 @@ td.actions .btn { margin-right: 0.3rem; }
 .auth-head h1 { font-size: 1.6rem; }
 .auth-head p { color: var(--muted); }
 .auth-switch { margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--muted); }
-.demo-fill { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
-.demo-fill button { font-size: 0.76rem; }
 .combo { position: relative; }
 .combo-results { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius); box-shadow: var(--shadow); z-index: 40; max-height: 260px; overflow: auto; }
 .combo-results button { display: block; width: 100%; text-align: left; background: transparent; border: 0; padding: 0.55rem 0.7rem; font: inherit; cursor: pointer; }

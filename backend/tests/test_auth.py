@@ -1,6 +1,4 @@
 """Authentication: pages, login, CSRF, registration and verification."""
-from urllib.parse import parse_qs, urlparse
-
 from conftest import csrf, login, post
 
 
@@ -60,11 +58,15 @@ def test_organization_registration_and_verification(app):
     data = response.get_json()["data"]
     assert data["organization"]["approval_status"] == "PENDING_APPROVAL"
     assert data["verification"]["required"] is True
-    dev_link = data["verification"]["dev_link"]
-    raw_token = parse_qs(urlparse(dev_link).query)["token"][0]
+    dev_code = data["verification"]["dev_code"]
 
     token = csrf(client)
-    verified = post(client, "/api/auth/verify-email", {"token": raw_token}, token)
+    verified = post(
+        client,
+        "/api/auth/verify-otp",
+        {"email": "admin@testinstitute.demo", "code": dev_code},
+        token,
+    )
     assert verified.status_code == 200
 
     pending_login = post(
@@ -75,6 +77,36 @@ def test_organization_registration_and_verification(app):
     )
     assert pending_login.status_code == 403
     assert pending_login.get_json()["error_code"] == "ACCOUNT_NOT_ACTIVE"
+
+
+def test_student_registration_without_department(app):
+    client = app.test_client()
+    html = client.get("/register/student").get_data(as_text=True)
+    assert 'name="department_id"' not in html
+
+    organizations = client.get("/api/public/organizations?type=UNIVERSITY").get_json()["data"][
+        "organizations"
+    ]
+    university = organizations[0]
+    response = post(
+        client,
+        "/api/auth/register/student",
+        {
+            "full_name": "No Department Student",
+            "email": "no.department@eip.local",
+            "password": "StudentPass123",
+            "confirm_password": "StudentPass123",
+            "phone": "+91 90000 55555",
+            "organization_id": university["_id"],
+            "degree": "B.E. CSE",
+            "academic_year": "2024-2028",
+            "year_of_study": "2",
+            "roll_number": "NODEPT001",
+        },
+        csrf(client),
+    )
+    assert response.status_code == 201, response.get_json()
+    assert response.get_json()["data"]["department"] is None
 
 
 def test_logout_clears_session(client):

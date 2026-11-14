@@ -7,6 +7,7 @@ from app.orchestration.orchestrator import AGENTS
 from app.orchestration.workflow_registry import WORKFLOWS
 from app.repositories import (
     catalog_repo,
+    courses_repo,
     operations_repo,
     organizations_repo,
     users_repo,
@@ -165,6 +166,7 @@ def catalog():
                 "careers": len(careers),
                 "resources": len(resources),
                 "questions": catalog_repo.count_questions(),
+                "courses": courses_repo.count_courses(active_only=False),
             },
         }
     )
@@ -271,7 +273,7 @@ def create_resource():
 
 
 @bp.post("/catalog/questions")
-@api_roles_required(ROLE_SUPER_ADMIN)
+@api_roles_required(*ADMIN_ROLES)
 def create_question():
     data = json_body()
     skill_name = (data.get("skill_name") or "").strip()
@@ -297,6 +299,67 @@ def create_question():
         }
     )
     return ok(question, "Question created.", 201)
+
+
+def _course_payload(data: dict) -> dict:
+    title = (data.get("title") or "").strip()
+    if not title:
+        raise AppError("Course title is required.", "VALIDATION_ERROR", 422)
+    skills = data.get("skill_names") or []
+    if isinstance(skills, str):
+        skills = [item.strip() for item in skills.split(",") if item.strip()]
+    modules = data.get("modules") or []
+    if isinstance(modules, str):
+        modules = [item.strip() for item in modules.replace("\r", "").split("\n") if item.strip()]
+    payload = {
+        "title": title[:160],
+        "provider": (data.get("provider") or "")[:120],
+        "description": (data.get("description") or "")[:2000],
+        "url": (data.get("url") or "")[:400],
+        "difficulty": (data.get("difficulty") or "BEGINNER").upper(),
+        "duration_hours": data.get("duration_hours", 6),
+        "skill_names": skills,
+        "modules": modules,
+        "is_active": bool(data.get("is_active", True)),
+    }
+    if payload["url"]:
+        from app.utils.text import is_http_url
+
+        if not is_http_url(payload["url"]):
+            raise AppError("Course URL must start with http:// or https://.", "INVALID_URL", 422)
+    return payload
+
+
+@bp.get("/courses")
+@api_roles_required(*ADMIN_ROLES)
+def courses():
+    return ok({"courses": courses_repo.list_courses(active_only=False)})
+
+
+@bp.post("/courses")
+@api_roles_required(*ADMIN_ROLES)
+def create_course():
+    course = courses_repo.create_course(_course_payload(json_body()))
+    return ok(course, "Course created.", 201)
+
+
+@bp.put("/courses/<course_id>")
+@api_roles_required(*ADMIN_ROLES)
+def update_course(course_id):
+    existing = courses_repo.find_course(course_id)
+    if not existing:
+        raise AppError("Course not found.", "COURSE_NOT_FOUND", 404)
+    payload = _course_payload(json_body())
+    existing_module_ids = {module["title"]: module["id"] for module in existing.get("modules", [])}
+    normalized_modules = []
+    for item in payload.get("modules", []):
+        title = item.get("title", "") if isinstance(item, dict) else str(item or "")
+        title = title.strip()
+        if title:
+            normalized_modules.append({"title": title, "id": existing_module_ids.get(title, "")})
+    payload["modules"] = normalized_modules
+    course = courses_repo.update_course(course_id, payload)
+    return ok(course, "Course updated.")
 
 
 @bp.get("/learner/<user_id>")

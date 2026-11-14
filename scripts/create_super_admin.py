@@ -14,7 +14,7 @@ from _bootstrap import build_app
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create or update the EIP Super Admin account.")
-    parser.add_argument("--email", default=os.environ.get("SUPER_ADMIN_EMAIL", "superadmin@eip.local"))
+    parser.add_argument("--email", default=os.environ.get("SUPER_ADMIN_EMAIL", "superadmin@example.com"))
     parser.add_argument("--password", default=os.environ.get("SUPER_ADMIN_PASSWORD", ""))
     parser.add_argument("--name", default=os.environ.get("SUPER_ADMIN_NAME", "Platform Owner"))
     parser.add_argument("--reset-password", action="store_true", help="Reset the password if the account exists.")

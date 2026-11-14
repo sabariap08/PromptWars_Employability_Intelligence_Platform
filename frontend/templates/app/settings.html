@@ -44,6 +44,7 @@
       <div class="stat-card"><div class="stat-label">Careers</div><div class="stat-value" id="count-careers">—</div></div>
       <div class="stat-card"><div class="stat-label">Resources</div><div class="stat-value" id="count-resources">—</div></div>
       <div class="stat-card"><div class="stat-label">Questions</div><div class="stat-value" id="count-questions">—</div></div>
+      <div class="stat-card"><div class="stat-label">Courses</div><div class="stat-value" id="count-courses">—</div></div>
     </div>
     <p class="small muted" style="margin-top:0.8rem">
       Seeding happens automatically when the catalog is empty. Additions below are audited as super-admin actions.
@@ -133,6 +134,35 @@
       </form>
     </details>
   </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Courses</h2><span id="admin-course-count" class="badge">—</span></div>
+  <div id="admin-course-list" class="stack"></div>
+  <hr>
+  <details>
+    <summary><strong>Add a course</strong></summary>
+    <form id="course-form" class="form-grid" style="margin-top:0.8rem" novalidate>
+      <div class="form-grid two">
+        <div class="field"><label for="course-title">Title</label><input id="course-title" required placeholder="Docker for Developers"></div>
+        <div class="field"><label for="course-provider">Provider</label><input id="course-provider" placeholder="Docker"></div>
+        <div class="field"><label for="course-url">URL</label><input id="course-url" type="url" placeholder="https://docs.docker.com/get-started/"></div>
+        <div class="field">
+          <label for="course-difficulty">Difficulty</label>
+          <select id="course-difficulty"><option>BEGINNER</option><option>INTERMEDIATE</option><option>ADVANCED</option></select>
+        </div>
+        <div class="field"><label for="course-hours">Duration (hours)</label><input id="course-hours" type="number" min="0.5" step="0.5" value="6"></div>
+        <div class="field"><label for="course-skills">Skills</label><input id="course-skills" placeholder="Docker, containers"></div>
+      </div>
+      <div class="field">
+        <label for="course-modules">Modules</label>
+        <textarea id="course-modules" rows="3" placeholder="Getting started&#10;Core concepts&#10;Hands-on project"></textarea>
+        <span class="hint">One module per line.</span>
+      </div>
+      <div class="field"><label for="course-description">Description</label><textarea id="course-description" rows="2"></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Create course</button></div>
+    </form>
+  </details>
 </div>
 {% endblock %}
 

@@ -13,14 +13,6 @@
 
       <div id="login-error" class="alert danger hidden" role="alert"></div>
 
-      <div class="demo-fill" aria-label="Demo accounts">
-        <button type="button" class="btn btn-outline btn-sm" data-demo-email="aarav@eip.local">Student</button>
-        <button type="button" class="btn btn-outline btn-sm" data-demo-email="rathinam.admin@eip.local">University admin</button>
-        <button type="button" class="btn btn-outline btn-sm" data-demo-email="nova.admin@eip.local">Company admin</button>
-        <button type="button" class="btn btn-outline btn-sm" data-demo-email="employee@eip.local">Expert</button>
-        <button type="button" class="btn btn-outline btn-sm" data-demo-email="superadmin@eip.local">Super admin</button>
-      </div>
-
       <form id="login-form" novalidate>
         <input type="hidden" id="next-url" value="{{ next_url }}">
         <div class="form-grid">
@@ -41,9 +33,6 @@
         or <a href="{{ url_for('pages.register_university_page') }}">register your institution</a>.
       </p>
     </div>
-    <p class="small center muted" style="margin-top:0.8rem">
-      Demo accounts use password <strong>Demo@12345</strong>.
-    </p>
   </div>
 </div>
 {% endblock %}

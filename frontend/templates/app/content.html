@@ -1,0 +1,80 @@
+{% extends "app/layout.html" %}
+{% block page_id %}content{% endblock %}
+{% block page_title %}Content management{% endblock %}
+{% block title %}Content management &mdash; {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Content management</h1>
+    <p>Add courses and assessment questions to the shared learning catalog.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="#add-course">Add course</a>
+    <a class="btn btn-primary btn-sm" href="#add-question">Add questions</a>
+  </div>
+</div>
+
+<div id="content-alert" class="alert warning hidden"></div>
+
+<div class="grid two">
+  <div class="card" id="add-course" style="scroll-margin-top:1rem">
+    <div class="card-title"><h2>Add course</h2><span class="badge primary">Catalog</span></div>
+    <form id="content-course-form" class="form-grid" novalidate>
+      <div class="form-grid two">
+        <div class="field"><label for="content-course-title">Title</label><input id="content-course-title" required placeholder="Docker for Developers"></div>
+        <div class="field"><label for="content-course-provider">Provider</label><input id="content-course-provider" placeholder="Docker"></div>
+        <div class="field"><label for="content-course-url">URL</label><input id="content-course-url" type="url" placeholder="https://docs.docker.com/get-started/"></div>
+        <div class="field">
+          <label for="content-course-difficulty">Difficulty</label>
+          <select id="content-course-difficulty"><option>BEGINNER</option><option>INTERMEDIATE</option><option>ADVANCED</option></select>
+        </div>
+        <div class="field"><label for="content-course-hours">Duration (hours)</label><input id="content-course-hours" type="number" min="0.5" step="0.5" value="6"></div>
+        <div class="field"><label for="content-course-skills">Skills</label><input id="content-course-skills" placeholder="Docker, containers"></div>
+      </div>
+      <div class="field">
+        <label for="content-course-modules">Modules</label>
+        <textarea id="content-course-modules" rows="3" placeholder="Getting started&#10;Core concepts&#10;Hands-on project"></textarea>
+        <span class="hint">One module per line.</span>
+      </div>
+      <div class="field"><label for="content-course-description">Description</label><textarea id="content-course-description" rows="2"></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" type="submit">Create course</button></div>
+    </form>
+  </div>
+
+  <div class="card" id="add-question" style="scroll-margin-top:1rem">
+    <div class="card-title"><h2>Add questions</h2><span class="badge primary">Assessment</span></div>
+    <form id="content-question-form" class="form-grid" novalidate>
+      <div class="form-grid two">
+        <div class="field"><label for="content-q-skill">Skill</label><input id="content-q-skill" required placeholder="Python"></div>
+        <div class="field">
+          <label for="content-q-type">Type</label>
+          <select id="content-q-type"><option>FACTUAL</option><option>SCENARIO</option><option>PRACTICAL</option></select>
+        </div>
+        <div class="field">
+          <label for="content-q-difficulty">Difficulty</label>
+          <select id="content-q-difficulty"><option>EASY</option><option>MEDIUM</option><option>HARD</option></select>
+        </div>
+        <div class="field"><label for="content-q-points">Points</label><input id="content-q-points" type="number" min="1" value="1"></div>
+      </div>
+      <div class="field"><label for="content-q-prompt">Prompt</label><textarea id="content-q-prompt" rows="3" required placeholder="Question text"></textarea></div>
+      <div class="field"><label for="content-q-options">Options (pipe separated)</label><input id="content-q-options" placeholder="Option A|Option B|Option C|Option D"></div>
+      <div class="form-grid two">
+        <div class="field"><label for="content-q-correct">Correct option</label><input id="content-q-correct" placeholder="A" value="A"></div>
+        <div class="field"><label for="content-q-keywords">Correct keywords (practical)</label><input id="content-q-keywords" placeholder="list, comprehension"></div>
+      </div>
+      <div class="field"><label for="content-q-explanation">Explanation</label><textarea id="content-q-explanation" rows="2" placeholder="Why the answer is correct"></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" type="submit">Save question</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Catalog courses</h2><span id="content-course-count" class="badge">&mdash;</span></div>
+  <div id="content-course-list" class="stack"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/content.js') }}"></script>
+{% endblock %}

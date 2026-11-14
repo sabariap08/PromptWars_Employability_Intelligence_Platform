@@ -1,0 +1,41 @@
+{% extends "app/layout.html" %}
+{% block page_id %}skills{% endblock %}
+{% block page_title %}My skills{% endblock %}
+{% block title %}My skills — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My skills</h1>
+    <p>Your skill profile, verified proficiency and the evidence behind every claim.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.profile_page') }}">Add or edit skills</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.assessments_page') }}">Take an assessment</a>
+  </div>
+</div>
+
+<div id="skills-alert" class="alert danger hidden"></div>
+
+<div class="grid four">
+  <div class="stat-card"><div class="stat-label">Skills</div><div class="stat-value" id="sk-total">—</div><div class="stat-hint" id="sk-verified">—</div></div>
+  <div class="stat-card"><div class="stat-label">Average proficiency</div><div class="stat-value" id="sk-avg">—</div><div class="stat-hint">Across all recorded skills</div></div>
+  <div class="stat-card"><div class="stat-label">Evidence records</div><div class="stat-value" id="sk-evidence">—</div><div class="stat-hint">Assessments, projects and reviews</div></div>
+  <div class="stat-card"><div class="stat-label">Target career</div><div class="stat-value" id="sk-career">—</div><div class="stat-hint">Readiness is measured against this role</div></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Skill profile</h2><span id="sk-count" class="badge">0 skills</span></div>
+    <div id="skill-list" class="stack"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Evidence trail</h2><span class="badge">Most recent first</span></div>
+    <div id="evidence-list" class="stack"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/skills.js') }}"></script>
+{% endblock %}

@@ -13,7 +13,7 @@ Built for the **PromptWars x RTC** hackathon. Flask + MongoDB Atlas + Vanilla JS
 - **Seven-agent orchestration** — profile, assessment, skill analysis, career intelligence, learning recommendation, progress evaluation and AI mentor, triggered by domain events.
 - **Provider-agnostic AI** — Groq, Gemini, OpenRouter, Hugging Face and Ollama behind one fallback chain. With no keys the platform still works using deterministic fallbacks.
 - **Tenant isolation and audit** — organization-scoped data, role guards, CSRF, rate limiting, security headers and an audit log.
-- **Demo mode** — with no MongoDB URI the app runs against an in-memory store and seeds a complete demo in seconds.
+- **Demo mode** — with no MongoDB URI the app runs against an in-memory store. Optional demo organisations and accounts can be seeded in local development via `SEED_DEMO_ON_START=true`.
 
 ## Quick start
 
@@ -25,7 +25,8 @@ pip install -r requirements.txt
 
 # 2. Configuration
 copy .env.example .env
-# Edit .env: set SECRET_KEY. MONGODB_URI is optional (empty = in-memory demo).
+# Edit .env: set SECRET_KEY and SUPER_ADMIN_* bootstrap credentials.
+# MONGODB_URI is optional (empty = in-memory store, data resets on restart).
 
 # 3. Initialize (indexes + catalog + first Super Admin)
 python scripts/initialize_database.py
@@ -37,17 +38,9 @@ python backend/run.py
 
 In-memory mode is **not persistent**: data resets when the server restarts. Set `MONGODB_URI` to an Atlas connection string for durable storage.
 
-## Demo accounts
+## Optional demo data
 
-All demo accounts use the password **`Demo@12345`** (development only).
-
-| Role | Email | Scope |
-| --- | --- | --- |
-| Super Admin | `superadmin@eip.local` | Whole platform |
-| University admin | `rathinam.admin@eip.local` | Rathinam Technical Campus |
-| Organization admin | `nova.admin@eip.local` | Nova Systems |
-| Expert reviewer | `employee@eip.local` | Nova Systems (expert enabled) |
-| Student | `aarav@eip.local` | Rathinam Technical Campus |
+For local evaluation only, set `SEED_DEMO_ON_START=true` in `.env` or run `python scripts/seed_demo_data.py` against an empty database. This creates a fictional university, company, admin/expert/learner accounts and sample evidence. Never enable it in production.
 
 Demo seeding only runs when the `users` collection is empty. The catalog seeds whenever it is empty.
 
@@ -75,7 +68,7 @@ Demo seeding only runs when the `users` collection is empty. The catalog seeds w
 python -m pytest backend/tests -q
 ```
 
-The suite covers authentication and CSRF, registration/verification, two-level approvals, the full learner journey (assessment → evaluation → roadmap), agent execution logging, provider routing validation, catalog administration and cross-organization isolation.
+The suite covers authentication and CSRF, registration/OTP verification, two-level approvals, the full learner journey (assessment → evaluation → roadmap), courses and enrolments, leaderboard, agent execution logging, provider routing validation, catalog administration and cross-organization isolation.
 
 ## Project layout
 
@@ -97,7 +90,7 @@ backend/
     utils/               # Response envelope, IDs, text helpers
   tests/                 # Pytest suite
 frontend/
-  templates/             # Jinja: public site, auth, app shell, 15 app pages
+  templates/             # Jinja: public site, auth, app shell, 19 app pages
   static/css/app.css     # Design system
   static/js/             # api/ui/app/auth + one module per page
 scripts/                 # Operational scripts

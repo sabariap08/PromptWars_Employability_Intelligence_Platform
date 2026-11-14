@@ -28,7 +28,7 @@ class Config:
 
     MONGODB_URI = os.environ.get("MONGODB_URI", "").strip()
     MONGODB_DB_NAME = os.environ.get("MONGODB_DB_NAME", "eip")
-    SEED_DEMO_ON_START = _bool("SEED_DEMO_ON_START", True)
+    SEED_DEMO_ON_START = _bool("SEED_DEMO_ON_START", False)
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
@@ -41,11 +41,18 @@ class Config:
 
     EMAIL_DELIVERY = os.environ.get("EMAIL_DELIVERY", "console")
     EXPOSE_VERIFICATION_LINK = _bool("EXPOSE_VERIFICATION_LINK", not IS_PRODUCTION)
-    MAIL_SERVER = os.environ.get("MAIL_SERVER", "")
-    MAIL_PORT = _int("MAIL_PORT", 587)
-    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
-    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
-    MAIL_FROM = os.environ.get("MAIL_FROM", "no-reply@eip.local")
+    OTP_TTL_MINUTES = _int("OTP_TTL_MINUTES", 10)
+    OTP_RESEND_SECONDS = _int("OTP_RESEND_SECONDS", 60)
+    OTP_MAX_ATTEMPTS = _int("OTP_MAX_ATTEMPTS", 5)
+    MAIL_SERVER = (os.environ.get("MAIL_SERVER") or os.environ.get("SMTP_HOST", "")).strip()
+    MAIL_PORT = _int("MAIL_PORT", _int("SMTP_PORT", 587))
+    MAIL_USERNAME = (os.environ.get("MAIL_USERNAME") or os.environ.get("EMAIL_ADDRESS", "")).strip()
+    MAIL_PASSWORD = (
+        os.environ.get("MAIL_PASSWORD") or os.environ.get("EMAIL_PASSWORD", "")
+    ).replace(" ", "").strip()
+    MAIL_FROM = (
+        os.environ.get("MAIL_FROM") or os.environ.get("EMAIL_ADDRESS") or "no-reply@eip.local"
+    ).strip()
 
     AI_PRIMARY_PROVIDER = os.environ.get("AI_PRIMARY_PROVIDER", "").strip().lower()
     AI_FALLBACK_ORDER = os.environ.get(

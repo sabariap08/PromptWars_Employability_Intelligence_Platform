@@ -6,11 +6,13 @@ from app.orchestration.orchestrator import run_workflow
 from app.repositories import (
     learning_repo,
     operations_repo,
+    organizations_repo,
     profiles_repo,
     users_repo,
 )
 from app.security.auth import LEARNER_ROLES, api_roles_required, current_user
 from app.services import (
+    affiliation_service,
     analytics_service,
     career_service,
     learning_service,
@@ -62,6 +64,30 @@ def save_profile():
         workflow = run_workflow("profile.completed", user, {}).get("executions", [])
     return ok({"profile": profile, "workflow": workflow}, "Profile saved.")
 
+
+@bp.get("/affiliation-requests")
+@api_roles_required(*LEARNER_ROLES)
+def affiliation_requests():
+    return ok({"requests": affiliation_service.list_my_requests()})
+
+@bp.post("/affiliation-request")
+@api_roles_required(*LEARNER_ROLES)
+def create_affiliation_request():
+    return ok(affiliation_service.create_request(json_body()), "Affiliation request submitted.", 201)
+
+@bp.get("/affiliation-options")
+@api_roles_required(*LEARNER_ROLES)
+def affiliation_options():
+    user = _user()
+    org_type = "UNIVERSITY" if user.get("role") == "STUDENT" else "COMPANY"
+    orgs = []
+    for org in organizations_repo.search_approved("", org_type, limit=100):
+        if org["_id"] == user.get("organization_id"):
+            continue
+        item = dict(org)
+        item["departments"] = organizations_repo.list_departments(org["_id"])
+        orgs.append(item)
+    return ok({"organizations": orgs})
 
 @bp.post("/skills")
 @api_roles_required(*LEARNER_ROLES)

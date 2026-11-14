@@ -1,0 +1,40 @@
+{% extends "app/layout.html" %}
+{% block page_id %}projects{% endblock %}
+{% block page_title %}My projects{% endblock %}
+{% block title %}My projects — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My projects</h1>
+    <p>Portfolio evidence, project verification status and follow-up checks.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.profile_page') }}">Submit a project</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.assessments_page') }}">Open assessments</a>
+  </div>
+</div>
+
+<div id="projects-alert" class="alert danger hidden"></div>
+
+<div class="grid four">
+  <div class="stat-card"><div class="stat-label">Projects</div><div class="stat-value" id="pj-total">—</div><div class="stat-hint">Submitted for review</div></div>
+  <div class="stat-card"><div class="stat-label">Verified</div><div class="stat-value" id="pj-verified">—</div><div class="stat-hint">Reviewed portfolio evidence</div></div>
+  <div class="stat-card"><div class="stat-label">Certifications</div><div class="stat-value" id="pj-certs">—</div><div class="stat-hint">Submitted credentials</div></div>
+  <div class="stat-card"><div class="stat-label">Technologies</div><div class="stat-value" id="pj-tech">—</div><div class="stat-hint">Distinct tools demonstrated</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Portfolio</h2><span class="badge">Evidence for your target career</span></div>
+  <div id="project-list" class="stack"></div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Certifications</h2><span class="badge">Verification checks</span></div>
+  <div id="cert-list" class="stack"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/projects.js') }}"></script>
+{% endblock %}

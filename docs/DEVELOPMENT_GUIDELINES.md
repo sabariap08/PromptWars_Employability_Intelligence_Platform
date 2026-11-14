@@ -110,7 +110,7 @@ Current coverage areas: auth/verification/CSRF, two-level approvals, full learne
 
 Keep these files in sync with behaviour:
 
-- `README.md` — setup, demo accounts, scripts.
+- `README.md` — setup, optional demo seeding, scripts.
 - `docs/ARCHITECTURE.md` — layers and cross-cutting behaviour.
 - `docs/DATABASE_SCHEMA.md` — collections and fields.
 - `docs/API_DOCUMENTATION.md` — endpoints, payloads, errors.

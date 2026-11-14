@@ -82,7 +82,8 @@ def _register_security_headers(app: Flask) -> None:
         if app.config.get("IS_PRODUCTION"):
             response.headers.setdefault(
                 "Content-Security-Policy",
-                "default-src 'self'; img-src 'self' data: https:; style-src 'self'; "
+                "default-src 'self'; img-src 'self' data: https:; "
+                "style-src 'self' 'unsafe-inline'; "
                 "script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'",
             )
         return response

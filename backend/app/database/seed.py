@@ -333,6 +333,32 @@ def _seed_catalog(db) -> None:
                 }
             )
 
+    if db["courses"].count_documents({}) == 0:
+        for title, provider, url, resource_type, skill_names, difficulty, hours in RESOURCES:
+            if resource_type != "COURSE":
+                continue
+            db["courses"].insert_one(
+                {
+                    "_id": __import__("uuid").uuid4().hex,
+                    "title": title,
+                    "provider": provider,
+                    "description": f"{title} from {provider}.",
+                    "url": url,
+                    "difficulty": difficulty,
+                    "duration_hours": hours,
+                    "skill_names": skill_names,
+                    "modules": [
+                        {"id": __import__("uuid").uuid4().hex, "title": "Getting started", "position": 1},
+                        {"id": __import__("uuid").uuid4().hex, "title": "Core concepts", "position": 2},
+                        {"id": __import__("uuid").uuid4().hex, "title": "Hands-on project", "position": 3},
+                    ],
+                    "is_active": True,
+                    "created_by": "system",
+                    "created_at": now_utc(),
+                    "updated_at": now_utc(),
+                }
+            )
+
     if db["assessment_questions"].count_documents({}) == 0:
         for skill_name, difficulty, prompt, options, correct, explanation in QUESTIONS:
             db["assessment_questions"].insert_one(
@@ -592,7 +618,7 @@ def ensure_seed(app) -> None:
     db = app.extensions["mongo_db"]
     _seed_catalog(db)
 
-    demo_enabled = app.config.get("SEED_DEMO_ON_START", True)
+    demo_enabled = app.config.get("SEED_DEMO_ON_START", False)
     is_empty = users_repo.count() == 0
     if demo_enabled and is_empty:
         _seed_demo(app)

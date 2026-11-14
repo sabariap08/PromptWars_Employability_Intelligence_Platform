@@ -68,7 +68,7 @@
 
             <fieldset>
               <legend>{{ "University" if mode == "student" else "Employer" }}</legend>
-              <div class="form-grid two">
+              <div class="form-grid{% if mode != 'student' %} two{% endif %}">
                 <div class="field combo">
                   <label for="org-search">Search approved {{ "universities" if mode == "student" else "companies" }}</label>
                   <input id="org-search" type="search" autocomplete="off" placeholder="Start typing a name or city…">
@@ -77,12 +77,14 @@
                   <div id="org-selected" class="selected-org hidden"></div>
                   <span class="hint">Only approved organisations appear. Ask your admin if yours is missing.</span>
                 </div>
+                {% if mode != "student" %}
                 <div class="field">
                   <label for="department_id">Department</label>
                   <select id="department_id" name="department_id" required>
                     <option value="">Select an organization first</option>
                   </select>
                 </div>
+                {% endif %}
               </div>
             </fieldset>
 

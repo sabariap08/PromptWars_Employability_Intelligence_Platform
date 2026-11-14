@@ -19,7 +19,6 @@
       </div>
       <p class="hero-note">
         Already onboarded? <a href="{{ url_for('pages.login_page') }}">Sign in</a>.
-        Demo accounts are available on the sign-in page.
       </p>
       <div class="row" style="margin-top:1.4rem">
         <span class="badge primary">7 collaborating agents</span>
@@ -130,17 +129,16 @@
 <section class="section">
   <div class="container grid two">
     <div class="demo-box">
-      <h2>Try the demo</h2>
-      <p>All demo accounts use the password <code>Demo@12345</code>.</p>
-      <div class="demo-list">
-        <div class="row-item"><span>Student</span><code>aarav@eip.local</code></div>
-        <div class="row-item"><span>University admin</span><code>rathinam.admin@eip.local</code></div>
-        <div class="row-item"><span>Company admin</span><code>nova.admin@eip.local</code></div>
-        <div class="row-item"><span>Industry expert</span><code>employee@eip.local</code></div>
-        <div class="row-item"><span>Super admin</span><code>superadmin@eip.local</code></div>
-      </div>
+      <h2>Start with your real profile</h2>
+      <p>Create an account, verify your email, and complete a baseline assessment to unlock a personalised readiness score and roadmap.</p>
+      <ul class="list-plain">
+        <li><span class="item-top"><span>Verified learner or institution</span><span class="badge success">Email OTP</span></span></li>
+        <li><span class="item-top"><span>Evidence-backed skill profile</span><span class="badge primary">Assessments</span></span></li>
+        <li><span class="item-top"><span>Courses and career recommendations</span><span class="badge">AI mentor</span></span></li>
+      </ul>
       <div class="form-actions" style="margin-top:1rem">
-        <a class="btn btn-amber" href="{{ url_for('pages.login_page') }}">Open sign in</a>
+        <a class="btn btn-amber" href="{{ url_for('pages.login_page') }}">Sign in</a>
+        <a class="btn btn-outline" href="{{ url_for('pages.register_student_page') }}">Create learner account</a>
       </div>
     </div>
     <div class="card">

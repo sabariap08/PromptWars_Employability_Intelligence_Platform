@@ -8,7 +8,7 @@ from app.security.auth import (
     ROLE_UNIVERSITY_ADMIN,
     api_roles_required,
 )
-from app.services import approval_service
+from app.services import affiliation_service, approval_service
 from app.utils.responses import ok
 
 bp = Blueprint("approvals_api", __name__, url_prefix="/api/approvals")
@@ -78,6 +78,20 @@ def reject_member(user_id):
     member = approval_service.reject_member(user_id, json_body().get("reason", ""))
     return ok(member, "Member rejected.")
 
+
+@bp.get("/affiliations")
+@api_roles_required(ROLE_SUPER_ADMIN, *ADMIN)
+def affiliations():
+    return ok({"requests": affiliation_service.list_requests(arg("status"), arg("q"))})
+
+@bp.post("/affiliations/<request_id>/review")
+@api_roles_required(ROLE_SUPER_ADMIN, *ADMIN)
+def review_affiliation(request_id):
+    data = json_body()
+    result = affiliation_service.review_request(
+        request_id, data.get("decision", ""), data.get("note", "")
+    )
+    return ok(result, "Affiliation request reviewed.")
 
 @bp.post("/experts/<user_id>")
 @api_roles_required(ROLE_ORGANIZATION_ADMIN)

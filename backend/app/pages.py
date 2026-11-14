@@ -2,6 +2,7 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from app.security.auth import (
+    ADMIN_ROLES,
     LEARNER_ROLES,
     ROLE_ORGANIZATION_ADMIN,
     ROLE_SUPER_ADMIN,
@@ -57,7 +58,11 @@ def register_organization_page():
 
 @bp.get("/verify-email")
 def verify_email_page():
-    return render_template("auth/verify_email.html", token=request.args.get("token", ""))
+    return render_template(
+        "auth/verify_email.html",
+        token=request.args.get("token", ""),
+        email=request.args.get("email", ""),
+    )
 
 
 @bp.get("/pending")
@@ -102,6 +107,30 @@ def roadmap_page():
     return render_template("app/roadmap.html")
 
 
+@bp.get("/app/skills")
+@page_roles_required(*LEARNER_ROLES)
+def skills_page():
+    return render_template("app/skills.html")
+
+
+@bp.get("/app/projects")
+@page_roles_required(*LEARNER_ROLES)
+def projects_page():
+    return render_template("app/projects.html")
+
+
+@bp.get("/app/courses")
+@page_roles_required(*LEARNER_ROLES)
+def courses_page():
+    return render_template("app/courses.html")
+
+
+@bp.get("/app/leaderboard")
+@page_roles_required(*LEARNER_ROLES)
+def leaderboard_page():
+    return render_template("app/leaderboard.html")
+
+
 @bp.get("/app/readiness")
 @page_roles_required(*LEARNER_ROLES)
 def readiness_page():
@@ -112,14 +141,6 @@ def readiness_page():
 @page_roles_required(*LEARNER_ROLES)
 def mentor_page():
     return render_template("app/mentor.html")
-
-
-@bp.get("/app/expert")
-@page_roles_required("EMPLOYEE")
-def expert_page():
-    if not current_user().get("is_expert"):
-        return redirect(url_for("pages.learner_dashboard"))
-    return render_template("app/expert.html")
 
 
 @bp.get("/app/notifications")
@@ -140,10 +161,10 @@ def requests_page():
     return render_template("app/requests.html")
 
 
-@bp.get("/app/learners")
-@page_roles_required(*ORG_ADMIN)
-def learners_page():
-    return render_template("app/learners.html")
+@bp.get("/app/content")
+@page_roles_required(*ADMIN_ROLES)
+def content_page():
+    return render_template("app/content.html")
 
 
 @bp.get("/app/platform")

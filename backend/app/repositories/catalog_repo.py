@@ -129,6 +129,10 @@ def create_question(data: dict) -> dict:
         "correct_keywords": data.get("correct_keywords", []),
         "explanation": data.get("explanation", ""),
         "points": int(data.get("points", 1)),
+        "source": data.get("source", "CURATED"),
+        "generation_key": data.get("generation_key", ""),
+        "generation": data.get("generation", {}),
+        "is_active": bool(data.get("is_active", True)),
         "created_at": now_utc(),
     }
     _questions().insert_one(doc)
@@ -139,9 +143,36 @@ def list_questions_for_skills(skill_names: list) -> list:
     return list(_questions().find({"skill_name": {"$in": list(skill_names)}}))
 
 
+def list_all_questions(limit: int = 1000) -> list:
+    return list(_questions().find({}).limit(limit))
+
+
+def list_questions_by_generation_key(generation_key: str) -> list:
+    if not generation_key:
+        return []
+    return list(_questions().find({"generation_key": generation_key, "is_active": True}))
+
+
 def find_questions_by_ids(question_ids: list) -> list:
     return list(_questions().find({"_id": {"$in": list(question_ids)}}))
 
 
 def count_questions() -> int:
     return _questions().count_documents({})
+
+
+def delete_question(question_id: str) -> bool:
+    return _questions().delete_one({"_id": question_id}).deleted_count > 0
+
+
+def update_question(question_id: str, fields: dict) -> dict | None:
+    allowed = {
+        "skill_name", "difficulty", "question_type", "prompt", "options",
+        "correct_option", "correct_keywords", "explanation", "points", "is_active",
+    }
+    update = {key: value for key, value in fields.items() if key in allowed}
+    if not update:
+        return _questions().find_one({"_id": question_id})
+    update["updated_at"] = now_utc()
+    _questions().update_one({"_id": question_id}, {"$set": update})
+    return _questions().find_one({"_id": question_id})

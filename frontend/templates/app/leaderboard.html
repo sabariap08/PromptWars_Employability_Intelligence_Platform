@@ -1,0 +1,54 @@
+{% extends "app/layout.html" %}
+{% block page_id %}leaderboard{% endblock %}
+{% block page_title %}Leaderboard{% endblock %}
+{% block title %}Leaderboard — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Leaderboard</h1>
+    <p>Readiness, verified skills, roadmap progress and completed courses — ranked across your organization.</p>
+  </div>
+  <a class="btn btn-outline btn-sm" href="{{ url_for('pages.readiness_page') }}">Improve your readiness</a>
+</div>
+
+<div id="leaderboard-alert" class="alert danger hidden"></div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Your standing</h2><span class="badge primary" id="lb-scope">Organization</span></div>
+    <div class="grid three" style="margin-top:0.6rem">
+      <div class="stat-card"><div class="stat-label">Rank</div><div class="stat-value" id="lb-rank">—</div><div class="stat-hint" id="lb-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Points</div><div class="stat-value" id="lb-points">—</div><div class="stat-hint">Weighted employability score</div></div>
+      <div class="stat-card"><div class="stat-label">Readiness</div><div class="stat-value" id="lb-readiness">—</div><div class="stat-hint" id="lb-courses">—</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>How points work</h2></div>
+    <div class="context-list">
+      <div class="ctx-row"><span>Career readiness</span><strong>50%</strong></div>
+      <div class="ctx-row"><span>Average assessment score</span><strong>25%</strong></div>
+      <div class="ctx-row"><span>Verified skills</span><strong>2 points each</strong></div>
+      <div class="ctx-row"><span>Roadmap completion</span><strong>15%</strong></div>
+      <div class="ctx-row"><span>Completed courses</span><strong>5 points each</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Rankings</h2><span id="lb-count" class="badge">—</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Rank</th><th>Learner</th><th>Department</th><th>Readiness</th><th>Verified skills</th><th>Courses</th><th>Points</th></tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+  <div id="leaderboard-empty" class="hidden"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/leaderboard.js') }}"></script>
+{% endblock %}

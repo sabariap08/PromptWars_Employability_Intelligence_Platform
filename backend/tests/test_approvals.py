@@ -1,14 +1,12 @@
 """Two-level approvals: organization registration and member membership."""
-from urllib.parse import parse_qs, urlparse
 
 from conftest import DEMO_PASSWORD, csrf, login, post
 
 
-def _verify(client, dev_link):
-    raw_token = parse_qs(urlparse(dev_link).query)["token"][0]
+def _verify(client, email, dev_code):
     token = csrf(client)
-    response = post(client, "/api/auth/verify-email", {"token": raw_token}, token)
-    assert response.status_code == 200
+    response = post(client, "/api/auth/verify-otp", {"email": email, "code": dev_code}, token)
+    assert response.status_code == 200, response.get_json()
 
 
 def test_super_admin_approves_new_organization(app):
@@ -31,7 +29,8 @@ def test_super_admin_approves_new_organization(app):
         token,
     )
     assert response.status_code == 201
-    _verify(applicant, response.get_json()["data"]["verification"]["dev_link"])
+    verification = response.get_json()["data"]["verification"]
+    _verify(applicant, "admin@approvaltest.demo", verification["dev_code"])
 
     super_admin = app.test_client()
     login(super_admin, "superadmin@eip.local")
@@ -77,7 +76,8 @@ def test_university_admin_approves_student(app):
         token,
     )
     assert response.status_code == 201, response.get_json()
-    _verify(student, response.get_json()["data"]["verification"]["dev_link"])
+    verification = response.get_json()["data"]["verification"]
+    _verify(student, "new.student@eip.local", verification["dev_code"])
 
     pending = post(
         student,

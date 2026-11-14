@@ -71,6 +71,21 @@ def verify_email():
     return ok(result, "Your email address is verified.")
 
 
+@bp.post("/verify-otp")
+@limiter.limit("12 per minute")
+def verify_otp():
+    data = json_body()
+    result = auth_service.verify_otp(data.get("email", ""), data.get("code", ""))
+    return ok(result, "Your email address is verified.")
+
+
+@bp.post("/resend-otp")
+@limiter.limit("5 per minute")
+def resend_otp():
+    result = auth_service.resend_otp(json_body().get("email", ""))
+    return ok(result, "A new verification code has been sent.")
+
+
 @bp.post("/login")
 @limiter.limit("12 per minute")
 def login():

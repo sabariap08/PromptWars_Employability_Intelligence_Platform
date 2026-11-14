@@ -1,5 +1,6 @@
-"""Registration, email verification and session login."""
+﻿"""Registration, email verification and session login."""
 import hashlib
+import hmac
 import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
@@ -7,7 +8,7 @@ from email.mime.text import MIMEText
 
 from flask import current_app, url_for
 
-from app.repositories import organizations_repo, profiles_repo, users_repo
+from app.repositories import organizations_repo, otp_repo, profiles_repo, users_repo
 from app.security.auth import (
     ROLE_EMPLOYEE,
     ROLE_ORGANIZATION_ADMIN,
@@ -48,23 +49,27 @@ def _is_expired(value) -> bool:
     return value < now_utc()
 
 
-def _verification_link(raw_token: str) -> str:
-    try:
-        return url_for("pages.verify_email_page", token=raw_token, _external=True)
-    except Exception:
-        return f"/verify-email?token={raw_token}"
+def _hash_otp(user_id: str, code: str) -> str:
+    secret = current_app.config.get("SECRET_KEY", "")
+    return hmac.new(
+        secret.encode("utf-8"),
+        f"{user_id}:{code}".encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
 
 
-def _send_verification_email(user: dict, link: str) -> str:
+def _send_verification_email(user: dict, code: str) -> str:
     app = current_app
     if app.config.get("EMAIL_DELIVERY") != "smtp" or not app.config.get("MAIL_SERVER"):
         return "console"
+    ttl = app.config.get("OTP_TTL_MINUTES", 10)
     try:
         message = MIMEText(
-            f"Hello {user['full_name']},\n\nVerify your EIP email address:\n{link}\n\n"
-            "This link expires in 48 hours."
+            f"Hello {user['full_name']},\n\n"
+            f"Your EIP verification code is: {code}\n\n"
+            f"The code expires in {ttl} minutes. If you did not create an account, ignore this email."
         )
-        message["Subject"] = "Verify your EIP account"
+        message["Subject"] = "Your EIP verification code"
         message["From"] = app.config.get("MAIL_FROM", "no-reply@eip.local")
         message["To"] = user["email"]
         with smtplib.SMTP(app.config["MAIL_SERVER"], app.config.get("MAIL_PORT", 587), timeout=10) as server:
@@ -79,19 +84,34 @@ def _send_verification_email(user: dict, link: str) -> str:
 
 
 def _issue_verification(user: dict) -> dict:
-    raw = secrets.token_urlsafe(32)
+    otp_repo.invalidate_active(user["_id"])
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    ttl = int(current_app.config.get("OTP_TTL_MINUTES", 10))
+    otp_repo.create_otp(
+        {
+            "user_id": user["_id"],
+            "email": user["email"],
+            "purpose": "EMAIL_VERIFICATION",
+            "code_hash": _hash_otp(user["_id"], code),
+            "expires_at": now_utc() + timedelta(minutes=ttl),
+            "max_attempts": int(current_app.config.get("OTP_MAX_ATTEMPTS", 5)),
+        }
+    )
     users_repo.update_user(
         user["_id"],
         {
-            "email_verification_token": _hash_token(raw),
-            "email_verification_expires_at": now_utc() + timedelta(hours=48),
+            "email_verification_expires_at": now_utc() + timedelta(minutes=ttl),
         },
     )
-    link = _verification_link(raw)
-    delivery = _send_verification_email(user, link)
-    payload = {"required": True, "delivery": delivery}
+    delivery = _send_verification_email(user, code)
+    payload = {
+        "required": True,
+        "channel": "email",
+        "delivery": delivery,
+        "expires_in_minutes": ttl,
+    }
     if current_app.config.get("EXPOSE_VERIFICATION_LINK"):
-        payload["dev_link"] = link
+        payload["dev_code"] = code
     return payload
 
 
@@ -251,7 +271,6 @@ def register_student(payload: dict) -> dict:
             "confirm_password",
             "phone",
             "organization_id",
-            "department_id",
             "degree",
             "academic_year",
             "year_of_study",
@@ -264,7 +283,8 @@ def register_student(payload: dict) -> dict:
     if users_repo.find_by_email(email):
         raise AppError("An account with this email already exists.", "EMAIL_EXISTS", 409)
     org = _validate_approved_org(payload["organization_id"], "UNIVERSITY")
-    department = _validate_department(org["_id"], payload["department_id"])
+    department_id = clean_text(payload.get("department_id"), 80)
+    department = _validate_department(org["_id"], department_id) if department_id else None
 
     user = _create_registration_user(
         {
@@ -272,7 +292,7 @@ def register_student(payload: dict) -> dict:
             "email": email,
             "password": payload["password"],
             "phone": clean_text(payload["phone"], 40),
-            "department_id": department["_id"],
+            "department_id": department["_id"] if department else None,
         },
         ROLE_STUDENT,
         org["_id"],
@@ -287,7 +307,7 @@ def register_student(payload: dict) -> dict:
             "academic_year": clean_text(payload["academic_year"], 40),
             "year_of_study": clean_text(payload["year_of_study"], 40),
             "roll_number": clean_text(payload["roll_number"], 60),
-            "department_name": department["name"],
+            "department_name": department["name"] if department else "",
         },
     )
     request = organizations_repo.create_approval_request(
@@ -304,7 +324,7 @@ def register_student(payload: dict) -> dict:
     return {
         "user": public_user(user),
         "organization": {"_id": org["_id"], "name": org["name"]},
-        "department": {"_id": department["_id"], "name": department["name"]},
+        "department": {"_id": department["_id"], "name": department["name"]} if department else None,
         "verification": verification,
         "message": (
             "Your registration has been submitted. Verify your email, then your institution "
@@ -385,6 +405,89 @@ def register_employee(payload: dict) -> dict:
     }
 
 
+def _mark_user_verified(user: dict) -> dict:
+    fields = {
+        "email_verified": True,
+        "email_verification_token": None,
+        "email_verification_expires_at": None,
+    }
+    if user.get("account_status") == "EMAIL_VERIFICATION_PENDING":
+        fields["account_status"] = "PENDING_APPROVAL"
+    users_repo.update_user(user["_id"], fields)
+    return {
+        "already_verified": False,
+        "account_status": fields.get("account_status", user.get("account_status")),
+    }
+
+
+def verify_otp(email: str, code: str) -> dict:
+    email = normalize_email(email)
+    code = clean_text(code, 10)
+    if not email or not code.isdigit() or len(code) != 6:
+        raise AppError("Enter the 6-digit code from your email.", "INVALID_OTP", 422)
+    user = users_repo.find_by_email(email)
+    if not user:
+        raise AppError("That verification code is invalid or has expired.", "INVALID_OTP", 422)
+    if user.get("email_verified"):
+        return {"already_verified": True, "account_status": user.get("account_status")}
+
+    record = otp_repo.find_active(email, "EMAIL_VERIFICATION")
+    if not record:
+        raise AppError("Request a new verification code to continue.", "OTP_NOT_FOUND", 422)
+    if _is_expired(record.get("expires_at")):
+        otp_repo.consume(record["_id"])
+        raise AppError("That verification code has expired. Request a new one.", "OTP_EXPIRED", 422)
+    if int(record.get("attempts", 0)) >= int(record.get("max_attempts", 5)):
+        otp_repo.consume(record["_id"])
+        raise AppError("Too many incorrect attempts. Request a new code.", "OTP_LOCKED", 429)
+
+    if not hmac.compare_digest(record.get("code_hash", ""), _hash_otp(user["_id"], code)):
+        attempts = otp_repo.increment_attempt(record["_id"])
+        remaining = max(0, int(record.get("max_attempts", 5)) - attempts)
+        if remaining == 0:
+            otp_repo.consume(record["_id"])
+            raise AppError("Too many incorrect attempts. Request a new code.", "OTP_LOCKED", 429)
+        raise AppError(
+            "That verification code is incorrect.",
+            "INVALID_OTP",
+            422,
+            {"attempts_remaining": remaining},
+        )
+
+    otp_repo.consume(record["_id"])
+    result = _mark_user_verified(user)
+    ops_service.safe_log("email_verified", user_id=user["_id"])
+    return result
+
+
+def resend_otp(email: str) -> dict:
+    email = normalize_email(email)
+    user = users_repo.find_by_email(email)
+    if not user:
+        raise AppError("If that account exists, a new code has been sent.", "OTP_SENT", 200)
+    if user.get("email_verified"):
+        raise AppError("This email address is already verified.", "ALREADY_VERIFIED", 409)
+
+    cooldown = int(current_app.config.get("OTP_RESEND_SECONDS", 60))
+    latest = otp_repo.find_latest(email, "EMAIL_VERIFICATION")
+    if latest and latest.get("last_sent_at"):
+        sent_at = latest["last_sent_at"]
+        if sent_at.tzinfo is None:
+            sent_at = sent_at.replace(tzinfo=timezone.utc)
+        elapsed = (now_utc() - sent_at).total_seconds()
+        if elapsed < cooldown:
+            raise AppError(
+                "Please wait before requesting another code.",
+                "OTP_RESEND_COOLDOWN",
+                429,
+                {"retry_after_seconds": int(cooldown - elapsed)},
+            )
+    if otp_repo.count_since(email, now_utc() - timedelta(hours=1), "EMAIL_VERIFICATION") >= 5:
+        raise AppError("Too many codes requested. Try again later.", "RATE_LIMITED", 429)
+
+    return _issue_verification(user)
+
+
 def verify_email(raw_token: str) -> dict:
     if not raw_token:
         raise AppError("This verification link is invalid.", "INVALID_TOKEN", 400)
@@ -447,3 +550,4 @@ def login(email: str, password: str) -> dict:
 
 def logout() -> None:
     logout_user()
+

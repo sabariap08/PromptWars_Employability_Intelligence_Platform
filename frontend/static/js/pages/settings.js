@@ -3,6 +3,7 @@
   "use strict";
 
   var providersLoaded = false;
+  var adminCourses = [];
 
   function alertBox(message, type) {
     var box = document.getElementById("settings-alert");
@@ -61,6 +62,36 @@
       document.getElementById("count-careers").textContent = counts.careers || 0;
       document.getElementById("count-resources").textContent = counts.resources || 0;
       document.getElementById("count-questions").textContent = counts.questions || 0;
+      document.getElementById("count-courses").textContent = counts.courses || 0;
+    });
+  }
+
+  function renderCourses(courses) {
+    adminCourses = courses;
+    document.getElementById("admin-course-count").textContent =
+      courses.length + (courses.length === 1 ? " course" : " courses");
+    var box = document.getElementById("admin-course-list");
+    if (!courses.length) {
+      box.innerHTML = '<p class="small muted">No courses in the catalog yet.</p>';
+      return;
+    }
+    box.innerHTML = courses.map(function (course) {
+      return (
+        '<div class="attempt-row"><div><strong>' + EIP.escape(course.title) + "</strong>" +
+        '<div class="small muted">' + EIP.escape(course.provider || "No provider") + " · " +
+        EIP.escape(EIP.titleCase(course.difficulty)) + " · " + (course.duration_hours || 0) + "h · " +
+        (course.modules || []).length + " modules</div></div>" +
+        '<div class="row">' + EIP.badge(course.is_active === false ? "INACTIVE" : "ACTIVE") +
+        '<button class="btn btn-ghost btn-sm" data-toggle-course="' + EIP.escape(course._id) +
+        '" data-course-active="' + (course.is_active === false ? "false" : "true") + '">' +
+        (course.is_active === false ? "Activate" : "Deactivate") + "</button></div></div>"
+      );
+    }).join("");
+  }
+
+  function loadCourses() {
+    return EIP.get("/api/admin/courses").then(function (data) {
+      renderCourses(data.courses || []);
     });
   }
 
@@ -68,6 +99,7 @@
     return Promise.all([
       loadProviders(),
       loadCatalog(),
+      loadCourses(),
       EIP.get("/api/admin/overview").then(function (data) {
         document.getElementById("settings-dbmode").textContent =
           "Database — " + EIP.titleCase(data.database_mode || "memory");
@@ -84,6 +116,10 @@
     return String(raw || "").split(/[\n,;]+/).map(function (item) { return item.trim(); }).filter(Boolean);
   }
 
+  function splitLines(raw) {
+    return String(raw || "").split(/\r?\n/).map(function (item) { return item.trim(); }).filter(Boolean);
+  }
+
   function submitCatalogForm(formId, handler) {
     document.getElementById(formId).addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -94,7 +130,7 @@
         clearAlert();
         EIP.toast("Catalog updated.", "success");
         event.target.reset();
-        await loadCatalog();
+        await Promise.all([loadCatalog(), loadCourses()]);
       } catch (err) {
         alertBox(err.message, "danger");
       } finally {
@@ -172,6 +208,45 @@
         correct_keywords: correctKeywords,
         explanation: value("q-explanation"),
       });
+    });
+
+    submitCatalogForm("course-form", function () {
+      return EIP.post("/api/admin/courses", {
+        title: value("course-title"),
+        provider: value("course-provider"),
+        url: value("course-url"),
+        difficulty: value("course-difficulty"),
+        duration_hours: Number(value("course-hours") || 6),
+        skill_names: splitList(value("course-skills")),
+        modules: splitLines(value("course-modules")),
+        description: value("course-description"),
+      });
+    });
+
+    document.getElementById("admin-course-list").addEventListener("click", async function (event) {
+      var button = event.target.closest("[data-toggle-course]");
+      if (!button) return;
+      var course = adminCourses.find(function (item) { return item._id === button.dataset.toggleCourse; });
+      if (!course) return;
+      EIP.setBusy(button, true, "Saving…");
+      try {
+        await EIP.put("/api/admin/courses/" + encodeURIComponent(course._id), {
+          title: course.title,
+          provider: course.provider,
+          url: course.url,
+          difficulty: course.difficulty,
+          duration_hours: course.duration_hours,
+          skill_names: course.skill_names,
+          modules: course.modules || [],
+          description: course.description,
+          is_active: button.dataset.courseActive !== "true",
+        });
+        EIP.toast("Course updated.", "success");
+        await loadCourses();
+      } catch (err) {
+        alertBox(err.message, "danger");
+        EIP.setBusy(button, false);
+      }
     });
   });
 })();

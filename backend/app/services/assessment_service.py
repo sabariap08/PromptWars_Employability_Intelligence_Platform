@@ -3,12 +3,12 @@ import random
 from datetime import timedelta
 
 from app.repositories import assessments_repo, catalog_repo, profiles_repo
-from app.services import ops_service, skill_service
+from app.services import ops_service, question_generation_service, skill_service
 from app.utils.ids import now_utc
 from app.utils.responses import AppError
 from app.utils.text import clean_text
 
-MAX_QUESTIONS = 14
+MAX_QUESTIONS = question_generation_service.QUESTION_COUNT
 OPTION_KEYS = ["A", "B", "C", "D", "E", "F"]
 PURPOSE_LABELS = {
     "BASELINE": "Baseline skills assessment",
@@ -44,32 +44,16 @@ def _shuffled_options(options: list, correct_index: int, rng: random.Random):
     return shuffled, correct_key
 
 
-def _build_question_pool(skill_names: list) -> dict:
-    pool = {}
-    for question in catalog_repo.list_questions_for_skills(skill_names):
-        pool.setdefault(question["skill_name"], []).append(question)
-    return pool
-
-
-def _select_questions(skill_names: list, per_skill: int = 2, max_total: int = MAX_QUESTIONS) -> list:
-    rng = _rng()
-    pool = _build_question_pool(skill_names)
-    chosen = []
-    for skill in skill_names:
-        questions = pool.get(skill, [])
-        if not questions:
-            continue
-        rng.shuffle(questions)
-        chosen.extend(questions[:per_skill])
-    rng.shuffle(chosen)
-    return chosen[:max_total]
+def _select_questions(skill_names: list, purpose: str = "BASELINE") -> list:
+    questions = question_generation_service.prepare_questions(skill_names, purpose, MAX_QUESTIONS)
+    return questions[:MAX_QUESTIONS]
 
 
 def _create_assessment(user: dict, purpose: str, skill_names: list, title: str, related_id: str | None = None) -> dict:
-    questions = _select_questions(skill_names)
-    if not questions:
+    questions = _select_questions(skill_names, purpose)
+    if len(questions) != MAX_QUESTIONS:
         raise AppError(
-            "We could not find assessment questions for those skills yet. Please add a few skills to your profile first.",
+            "We could not prepare a complete 20-question assessment yet. Please try again or add more skills.",
             "NO_QUESTIONS",
             422,
         )
