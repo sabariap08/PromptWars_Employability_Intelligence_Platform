@@ -4,8 +4,6 @@ The catalog (skills, careers, trusted resources, question bank) is required for
 the platform to function. Demo accounts and demo evidence are separate and are
 only created when SEED_DEMO_ON_START is enabled and the database is empty.
 """
-import os
-import secrets
 
 from app.repositories import (
     catalog_repo,
@@ -390,12 +388,11 @@ def ensure_super_admin(app) -> dict | None:
         return existing
 
     password = app.config.get("SUPER_ADMIN_PASSWORD")
-    generated = False
     if not password:
         if not demo_mode:
             return None
         password = "Demo@12345"
-    user = users_repo.create_user(
+    return users_repo.create_user(
         {
             "full_name": app.config.get("SUPER_ADMIN_NAME", "Platform Owner"),
             "email": email.lower(),
@@ -406,7 +403,6 @@ def ensure_super_admin(app) -> dict | None:
             "approved_at": now_utc(),
         }
     )
-    return user
 
 
 def _demo_user(name: str, email: str, role: str, org_id: str, department_id: str | None, **extra) -> dict:
@@ -446,7 +442,7 @@ def _seed_demo(app) -> None:
         }
     )
     cse = organizations_repo.create_department(university["_id"], "Computer Science and Engineering", "CSE")
-    it = organizations_repo.create_department(university["_id"], "Information Technology", "IT")
+    organizations_repo.create_department(university["_id"], "Information Technology", "IT")
     organizations_repo.create_department(university["_id"], "Electronics and Communication", "ECE")
 
     uni_admin = _demo_user(
@@ -478,7 +474,7 @@ def _seed_demo(app) -> None:
     engineering = organizations_repo.create_department(company["_id"], "Engineering", "ENG")
     data_dept = organizations_repo.create_department(company["_id"], "Data", "DATA")
 
-    org_admin = _demo_user(
+    _demo_user(
         "Daniel Mathew",
         "nova.admin@eip.local",
         "ORGANIZATION_ADMIN",

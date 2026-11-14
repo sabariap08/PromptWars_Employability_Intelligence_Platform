@@ -11,6 +11,7 @@ bp = Blueprint("public_api", __name__, url_prefix="/api/public")
 @bp.get("/health")
 def health():
     from flask import current_app
+
     from app.database.mongo import db_mode
 
     return ok({"status": "ok", "database_mode": db_mode(), "app": current_app.config["APP_NAME"]})

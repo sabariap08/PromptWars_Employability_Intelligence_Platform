@@ -1,5 +1,10 @@
 """Learner-initiated organization change requests with administrator review."""
-from app.repositories import affiliations_repo, organizations_repo, profiles_repo, users_repo
+from app.repositories import (
+    affiliations_repo,
+    organizations_repo,
+    profiles_repo,
+    users_repo,
+)
 from app.security.auth import (
     ROLE_ORGANIZATION_ADMIN,
     ROLE_STUDENT,

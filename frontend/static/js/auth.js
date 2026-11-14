@@ -189,7 +189,7 @@
         var html =
           '<div class="auth-head"><h1>Check your email</h1><p>' + EIP.escape(data.message || "Registration submitted.") + "</p></div>" +
           '<div class="alert info">' +
-          "Account status: " + EIP.escape(EIP.titleCase(data.user.account_status)) + " A� " +
+          "Account status: " + EIP.escape(EIP.titleCase(data.user.account_status)) + " | " +
           "Verification: " + EIP.escape(delivery || "email") +
           "</div>";
         if (devCode) {

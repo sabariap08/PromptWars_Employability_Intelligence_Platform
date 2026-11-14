@@ -1,7 +1,6 @@
 """Admin content entry points and shared creation permissions."""
 from conftest import login, post
 
-
 ADMIN_ACCOUNTS = [
     "superadmin@eip.local",
     "rathinam.admin@eip.local",

@@ -1,5 +1,6 @@
 """Course catalog, enrolment progress, recommendations and leaderboard."""
 from app.repositories import (
+    catalog_repo,
     courses_repo,
     learning_repo,
     organizations_repo,
@@ -98,12 +99,18 @@ def enroll(user: dict, course_id: str) -> dict:
 
 
 def my_enrollments(user: dict) -> list:
-    results = []
-    for enrollment in courses_repo.list_enrollments(user["_id"]):
-        course = courses_repo.find_course(enrollment["course_id"])
-        if course:
-            results.append(serialize_course(course, enrollment, include_modules=True))
-    return results
+    enrollments = courses_repo.list_enrollments(user["_id"])
+    if not enrollments:
+        return []
+    courses = {
+        course["_id"]: course
+        for course in courses_repo.list_courses(active_only=False, limit=1000)
+    }
+    return [
+        serialize_course(courses[enrollment["course_id"]], enrollment, include_modules=True)
+        for enrollment in enrollments
+        if enrollment["course_id"] in courses
+    ]
 
 
 def update_progress(user: dict, enrollment_id: str, module_id: str, completed: bool = True) -> dict:
@@ -234,16 +241,48 @@ def leaderboard(user: dict, scope: str = "organization", limit: int = 20) -> dic
     if scope == "platform":
         org_id = None
     candidates = _candidate_users(org_id)
+    if not candidates:
+        return {"scope": scope if scope == "platform" else "organization", "leaderboard": [], "me": None, "total": 0, "organization_count": 0}
+
+    candidate_ids = {candidate["_id"] for candidate in candidates}
+    progress_map = {
+        record["user_id"]: record
+        for record in learning_repo.list_progress_for_users(candidate_ids)
+    }
+    skills_map = {}
+    for skill in profiles_repo.list_skills_for_users(candidate_ids):
+        skills_map.setdefault(skill["user_id"], {})[skill.get("skill_name", "")] = skill
+    profiles_map = {
+        profile["user_id"]: profile
+        for profile in profiles_repo.list_profiles_for_users(candidate_ids)
+    }
+    roadmap_map = {
+        roadmap["user_id"]: roadmap
+        for roadmap in learning_repo.list_active_roadmaps_for_users(candidate_ids)
+    }
+    completed_counts = {}
+    for enrollment in courses_repo.list_enrollments_for_users(candidate_ids):
+        if enrollment.get("status") == "COMPLETED":
+            completed_counts[enrollment["user_id"]] = completed_counts.get(enrollment["user_id"], 0) + 1
+
+    career_map = {career["_id"]: career for career in catalog_repo.list_careers()}
+    departments = organizations_repo.list_all_departments()
+    department_names = {dept["_id"]: dept.get("name", "") for dept in departments}
+
     rows = []
     for candidate in candidates:
-        progress = learning_repo.find_progress(candidate["_id"]) or {}
-        analysis = career_service.analyze(candidate["_id"]) or {}
-        readiness = analysis.get("readiness", progress.get("career_readiness", 0)) or 0
-        skills = profiles_repo.list_learner_skills(candidate["_id"])
+        user_id = candidate["_id"]
+        progress = progress_map.get(user_id) or {}
+        readiness = progress.get("career_readiness")
+        if readiness is None:
+            profile = profiles_map.get(user_id) or {}
+            role = career_map.get(profile.get("target_career_id"))
+            readiness = career_service.analyze_with_skills(skills_map.get(user_id, {}), role)["readiness"] if role else 0
+        skills = skills_map.get(user_id, {}).values()
         verified = sum(1 for skill in skills if skill.get("verification_status") == "VERIFIED")
-        roadmap = learning_repo.active_roadmap(candidate["_id"])
+        roadmap = roadmap_map.get(user_id)
         roadmap_completion = learning_service.roadmap_summary(roadmap).get("completion", 0) if roadmap else 0
-        courses_completed = courses_repo.count_completed(candidate["_id"])
+        courses_completed = completed_counts.get(user_id, 0)
         average_score = progress.get("average_score", 0) or 0
         points = (
             float(readiness) * 0.5
@@ -252,13 +291,12 @@ def leaderboard(user: dict, scope: str = "organization", limit: int = 20) -> dic
             + float(roadmap_completion) * 0.15
             + courses_completed * 5
         )
-        department = organizations_repo.find_department(candidate.get("department_id")) or {}
         rows.append(
             {
-                "user_id": candidate["_id"],
+                "user_id": user_id,
                 "full_name": candidate.get("full_name", ""),
-                "department": department.get("name", ""),
-                "readiness": round(readiness),
+                "department": department_names.get(candidate.get("department_id"), ""),
+                "readiness": round(readiness or 0),
                 "average_score": round(average_score),
                 "skills_verified": verified,
                 "courses_completed": courses_completed,

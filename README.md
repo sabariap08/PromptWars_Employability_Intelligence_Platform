@@ -40,7 +40,7 @@ In-memory mode is **not persistent**: data resets when the server restarts. Set 
 
 ## Optional demo data
 
-For local evaluation only, set `SEED_DEMO_ON_START=true` in `.env` or run `python scripts/seed_demo_data.py` against an empty database. This creates a fictional university, company, admin/expert/learner accounts and sample evidence. Never enable it in production.
+For local evaluation only, set `SEED_DEMO_ON_START=true` in `.env` or run `python scripts/seed_demo_data.py` against an empty database. This creates a fictional university, company, admin and learner accounts plus sample evidence. Never enable it in production. Pre-generated demo credentials are listed in `EIP_Demo_Accounts_40.pdf`.
 
 Demo seeding only runs when the `users` collection is empty. The catalog seeds whenever it is empty.
 
@@ -49,9 +49,9 @@ Demo seeding only runs when the `users` collection is empty. The catalog seeds w
 | Role | Landing page | Main capabilities |
 | --- | --- | --- |
 | `SUPER_ADMIN` | `/app/platform` | Organization approvals, platform analytics, providers, catalog, agent log |
-| `UNIVERSITY_ADMIN` | `/app/admin` | Institution analytics, member approvals, learners, trainer assignments |
-| `ORGANIZATION_ADMIN` | `/app/admin` | Company analytics, member approvals, expert capability, assignments |
-| `EMPLOYEE` | `/app/dashboard` | Learner workspace; expert review when `is_expert` is enabled |
+| `UNIVERSITY_ADMIN` | `/app/admin` | Institution analytics, member approvals, add courses and assessment questions |
+| `ORGANIZATION_ADMIN` | `/app/admin` | Company analytics, member approvals, add courses and assessment questions |
+| `EMPLOYEE` | `/app/dashboard` | Learner workspace; API-level expert review when `is_expert` and an assignment exist |
 | `STUDENT` | `/app/dashboard` | Profile, assessments, readiness, roadmap, mentor |
 
 ## Scripts
@@ -69,6 +69,18 @@ python -m pytest backend/tests -q
 ```
 
 The suite covers authentication and CSRF, registration/OTP verification, two-level approvals, the full learner journey (assessment → evaluation → roadmap), courses and enrolments, leaderboard, agent execution logging, provider routing validation, catalog administration and cross-organization isolation.
+
+## Code quality
+
+```bash
+python -m ruff check backend scripts   # lint
+python -m pytest -q                    # tests
+```
+
+- `pyproject.toml` centralises Ruff and pytest configuration.
+- `.editorconfig` keeps whitespace and encoding consistent across editors.
+- GitHub Actions runs lint and the full test suite on every push and pull request.
+- Shared response envelopes, validators, repository boundaries and service-level business logic keep API handlers thin.
 
 ## Project layout
 
@@ -95,6 +107,8 @@ frontend/
   static/js/             # api/ui/app/auth + one module per page
 scripts/                 # Operational scripts
 docs/                    # Architecture, schema, API, agents, guidelines
+.github/workflows/       # Continuous integration (lint + tests)
+pyproject.toml           # Ruff and pytest configuration
 ```
 
 ## Documentation

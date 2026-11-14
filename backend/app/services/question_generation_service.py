@@ -55,7 +55,7 @@ def _is_duplicate(prompt: str, existing_prompts: list) -> bool:
 
 def _generation_key(skill_names: list, purpose: str, count: int) -> str:
     raw = "|".join(sorted(_normalize(name) for name in skill_names))
-    return hashlib.sha256(f"{purpose}:{count}:{raw}".encode("utf-8")).hexdigest()[:32]
+    return hashlib.sha256(f"{purpose}:{count}:{raw}".encode()).hexdigest()[:32]
 
 
 def _coerce_options(raw_options) -> list:

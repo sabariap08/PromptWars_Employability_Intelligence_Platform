@@ -49,6 +49,13 @@ def find_profile(user_id: str) -> dict | None:
     return _profiles().find_one({"user_id": user_id})
 
 
+def list_profiles_for_users(user_ids) -> list:
+    ids = set(user_ids)
+    if not ids:
+        return []
+    return [profile for profile in _profiles().find({}) if profile.get("user_id") in ids]
+
+
 def update_profile(user_id: str, fields: dict) -> dict | None:
     fields = dict(fields)
     fields["updated_at"] = now_utc()
@@ -96,6 +103,13 @@ def list_learner_skills(user_id: str) -> list:
 
 def list_org_skills(org_id: str) -> list:
     return list(_skills().find({"organization_id": org_id}))
+
+
+def list_skills_for_users(user_ids) -> list:
+    ids = set(user_ids)
+    if not ids:
+        return []
+    return [skill for skill in _skills().find({}) if skill.get("user_id") in ids]
 
 
 def delete_learner_skill(user_id: str, skill_name: str) -> None:

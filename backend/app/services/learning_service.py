@@ -159,7 +159,7 @@ def generate_roadmap(user: dict, trigger: str = "initial", rationale: str = "") 
         sum(task["est_hours"] for phase in phases for task in phase["tasks"]), 1
     )
     learning_repo.archive_active_roadmaps(user["_id"])
-    roadmap = learning_repo.create_roadmap(
+    return learning_repo.create_roadmap(
         {
             "user_id": user["_id"],
             "organization_id": user.get("organization_id"),
@@ -173,7 +173,6 @@ def generate_roadmap(user: dict, trigger: str = "initial", rationale: str = "") 
             "estimated_hours": estimated,
         }
     )
-    return roadmap
 
 
 def _find_task(roadmap: dict, task_id: str):
@@ -188,7 +187,7 @@ def update_task(user: dict, task_id: str, action: str, evidence_url: str = "") -
     roadmap = learning_repo.active_roadmap(user["_id"])
     if not roadmap:
         raise AppError("You do not have an active learning plan yet.", "ROADMAP_NOT_FOUND", 404)
-    phase, task = _find_task(roadmap, task_id)
+    _phase, task = _find_task(roadmap, task_id)
     if not task:
         raise AppError("Learning task not found.", "TASK_NOT_FOUND", 404)
     action = (action or "").upper()

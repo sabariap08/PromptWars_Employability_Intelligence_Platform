@@ -141,7 +141,7 @@ def create_project_check(user: dict, project: dict) -> dict:
     practical = [q for q in questions if q.get("question_type") == "PRACTICAL_WRITTEN"][-len(skill_names):]
     if not practical:
         raise AppError("We could not prepare project questions.", "NO_QUESTIONS", 422)
-    assessment = assessments_repo.create_assessment(
+    return assessments_repo.create_assessment(
         {
             "user_id": user["_id"],
             "organization_id": user.get("organization_id"),
@@ -153,7 +153,6 @@ def create_project_check(user: dict, project: dict) -> dict:
             "related_id": project["_id"],
         }
     )
-    return assessment
 
 
 def start_attempt(user: dict, assessment_id: str) -> dict:

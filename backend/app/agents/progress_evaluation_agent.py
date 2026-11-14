@@ -22,8 +22,6 @@ class ProgressEvaluationAgent(BaseAgent):
             weak_skills = [skill for skill, score in topic_scores.items() if score < 50]
             if topic_scores:
                 primary_skill = min(topic_scores, key=lambda skill: topic_scores[skill])
-                if not weak_skills and latest_score is not None and latest_score < 75:
-                    primary_skill = primary_skill
 
         adaptation = "none"
         if latest_score is not None:

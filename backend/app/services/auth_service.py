@@ -3,10 +3,10 @@ import hashlib
 import hmac
 import secrets
 import smtplib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from email.mime.text import MIMEText
 
-from flask import current_app, url_for
+from flask import current_app
 
 from app.repositories import organizations_repo, otp_repo, profiles_repo, users_repo
 from app.security.auth import (
@@ -45,7 +45,7 @@ def _is_expired(value) -> bool:
         except ValueError:
             return True
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
+        value = value.replace(tzinfo=UTC)
     return value < now_utc()
 
 
@@ -53,7 +53,7 @@ def _hash_otp(user_id: str, code: str) -> str:
     secret = current_app.config.get("SECRET_KEY", "")
     return hmac.new(
         secret.encode("utf-8"),
-        f"{user_id}:{code}".encode("utf-8"),
+        f"{user_id}:{code}".encode(),
         hashlib.sha256,
     ).hexdigest()
 
@@ -78,7 +78,7 @@ def _send_verification_email(user: dict, code: str) -> str:
                 server.login(app.config["MAIL_USERNAME"], app.config.get("MAIL_PASSWORD", ""))
             server.send_message(message)
         return "smtp"
-    except Exception as exc:  # email failures must not block registration
+    except Exception as exc:  # noqa: BLE001 - email failures must not block registration
         ops_service.safe_log("verification_email_failed", error=str(exc)[:200])
         return "console"
 
@@ -473,7 +473,7 @@ def resend_otp(email: str) -> dict:
     if latest and latest.get("last_sent_at"):
         sent_at = latest["last_sent_at"]
         if sent_at.tzinfo is None:
-            sent_at = sent_at.replace(tzinfo=timezone.utc)
+            sent_at = sent_at.replace(tzinfo=UTC)
         elapsed = (now_utc() - sent_at).total_seconds()
         if elapsed < cooldown:
             raise AppError(

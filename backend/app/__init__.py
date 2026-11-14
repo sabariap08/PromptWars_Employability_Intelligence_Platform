@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import date, datetime
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, render_template, request
 from flask.json.provider import DefaultJSONProvider
 
 from app.config.settings import PROJECT_ROOT, Config

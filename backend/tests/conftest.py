@@ -8,7 +8,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 if str(BACKEND) not in sys.path:
     sys.path.insert(0, str(BACKEND))
 
-from app import create_app  # noqa: E402
+from app import create_app
 
 DEMO_PASSWORD = "Demo@12345"
 

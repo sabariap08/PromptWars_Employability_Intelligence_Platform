@@ -2,7 +2,7 @@
 import hmac
 import secrets
 
-from flask import current_app, request, session
+from flask import request, session
 
 from app.utils.responses import AppError
 
@@ -21,11 +21,11 @@ def init_csrf(app) -> None:
     @app.before_request
     def verify_csrf():
         if not app.config.get("CSRF_ENABLED", True):
-            return None
+            return
         if request.method in SAFE_METHODS:
-            return None
+            return
         if not request.path.startswith("/api/"):
-            return None
+            return
         expected = session.get("csrf_token")
         provided = request.headers.get("X-CSRF-Token", "")
         if not expected or not provided or not hmac.compare_digest(expected, provided):
@@ -34,4 +34,4 @@ def init_csrf(app) -> None:
                 "CSRF_FAILED",
                 403,
             )
-        return None
+        return

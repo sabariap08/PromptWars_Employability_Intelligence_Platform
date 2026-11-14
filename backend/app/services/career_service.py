@@ -14,7 +14,10 @@ def _attainment(proficiency: float, required: float) -> float:
 
 
 def analyze_role(user_id: str, role: dict) -> dict:
-    skills = _learner_skill_map(user_id)
+    return analyze_with_skills(_learner_skill_map(user_id), role)
+
+
+def analyze_with_skills(skills: dict, role: dict) -> dict:
     requirements = role.get("required_skills", [])
     total_weight = 0.0
     weighted = 0.0

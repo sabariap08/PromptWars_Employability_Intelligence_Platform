@@ -10,6 +10,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f766e'/><text x='32' y='43' font-family='Arial' font-size='30' font-weight='bold' text-anchor='middle' fill='white'>E</text></svg>">
 </head>
 <body data-page="{% block page_id %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <header class="site-header">
     <div class="container">
       <a class="site-brand" href="{{ url_for('pages.landing') }}">
@@ -30,7 +31,9 @@
     </div>
   </header>
 
-  {% block body %}{% endblock %}
+  <main id="main" tabindex="-1">
+    {% block body %}{% endblock %}
+  </main>
 
   <footer class="site-footer">
     <div class="container row between">
@@ -41,7 +44,7 @@
     </div>
   </footer>
 
-  <div id="toast-host" class="toast-host"></div>
+  <div id="toast-host" class="toast-host" role="status" aria-live="polite" aria-atomic="false"></div>
   <script src="{{ url_for('static', filename='js/api.js') }}"></script>
   <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
   {% block scripts %}{% endblock %}

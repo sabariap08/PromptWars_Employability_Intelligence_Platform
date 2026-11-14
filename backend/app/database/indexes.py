@@ -1,14 +1,18 @@
 """Index creation for all EIP collections (idempotent)."""
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def ensure_indexes(db) -> None:
     def idx(collection, keys, **kwargs):
         try:
             db[collection].create_index(keys, **kwargs)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 - indexing must never block startup
             # Indexes are an optimization; mongomock or restricted Atlas users
             # may not support every option. Indexing failures must not break startup.
-            pass
+            logger.debug("Skipped index on %s: %s", collection, exc)
 
     idx("users", "email", unique=True)
     idx("users", [("organization_id", 1), ("role", 1), ("account_status", 1)])

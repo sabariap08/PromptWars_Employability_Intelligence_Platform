@@ -143,3 +143,10 @@ def update_enrollment(enrollment_id: str, fields: dict) -> dict | None:
 
 def count_completed(user_id: str) -> int:
     return _enrollments().count_documents({"user_id": user_id, "status": "COMPLETED"})
+
+
+def list_enrollments_for_users(user_ids) -> list:
+    ids = set(user_ids)
+    if not ids:
+        return []
+    return [row for row in _enrollments().find({}) if row.get("user_id") in ids]

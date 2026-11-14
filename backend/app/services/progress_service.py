@@ -1,5 +1,10 @@
 """Aggregate learner progress and dashboard data."""
-from app.repositories import assessments_repo, learning_repo, operations_repo, profiles_repo
+from app.repositories import (
+    assessments_repo,
+    learning_repo,
+    operations_repo,
+    profiles_repo,
+)
 from app.services import career_service, learning_service, profile_service
 
 

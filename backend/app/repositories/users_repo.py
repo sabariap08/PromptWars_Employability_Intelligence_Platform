@@ -73,22 +73,23 @@ def transition_status(user_id: str, from_status: str, to_status: str, **extra) -
 
 def list_by_org(org_id: str, roles=None, statuses=None, search: str = "", page: int = 1, page_size: int = 20):
     query = {"organization_id": org_id}
-    if roles:
-        query["role"] = {"$in": list(roles)}
-    if statuses:
-        query["account_status"] = {"$in": list(statuses)}
     if search:
         pattern = re.compile(re.escape(search.strip()), re.IGNORECASE)
         query["$or"] = [{"full_name": pattern}, {"email": pattern}]
-    total = _col().count_documents(query)
-    cursor = (
-        _col()
-        .find(query)
-        .sort("created_at", -1)
-        .skip(max(0, (page - 1) * page_size))
-        .limit(page_size)
-    )
-    return list(cursor), total
+    start = max(0, (page - 1) * page_size)
+    if not roles and not statuses:
+        total = _col().count_documents(query)
+        rows = list(_col().find(query).sort("created_at", -1).skip(start).limit(page_size))
+        return rows, total
+    role_set = set(roles or [])
+    status_set = set(statuses or [])
+    rows = [
+        row
+        for row in _col().find(query).sort("created_at", -1)
+        if (not role_set or row.get("role") in role_set)
+        and (not status_set or row.get("account_status") in status_set)
+    ]
+    return rows[start : start + page_size], len(rows)
 
 
 def list_by_org_department(org_id: str, department_id: str) -> list:

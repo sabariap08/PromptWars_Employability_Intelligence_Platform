@@ -142,6 +142,10 @@ def list_departments(org_id: str) -> list:
     return list(_departments().find({"organization_id": org_id}).sort("name", 1))
 
 
+def list_all_departments() -> list:
+    return list(_departments().find({}).sort("name", 1))
+
+
 def create_approval_request(data: dict) -> dict:
     doc = {
         "_id": new_id(),

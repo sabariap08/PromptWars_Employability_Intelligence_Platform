@@ -19,8 +19,7 @@ ADMIN_ROLES = (ROLE_SUPER_ADMIN, ROLE_UNIVERSITY_ADMIN, ROLE_ORGANIZATION_ADMIN)
 def public_user(user: dict | None) -> dict | None:
     if not user:
         return None
-    clean = {k: v for k, v in user.items() if k not in {"password_hash", "email_verification_token"}}
-    return clean
+    return {k: v for k, v in user.items() if k not in {"password_hash", "email_verification_token"}}
 
 
 def current_user() -> dict | None:

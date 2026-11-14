@@ -63,4 +63,4 @@ def validate_choice(value: str, allowed, label: str) -> str:
 
 def validate_email_domain(email: str, website: str) -> None:
     """Soft validation used for organization registration (never auto-rejects)."""
-    return None
+    return

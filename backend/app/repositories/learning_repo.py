@@ -137,6 +137,24 @@ def list_org_progress(org_id: str) -> list:
     return list(_progress().find({"organization_id": org_id}))
 
 
+def list_progress_for_users(user_ids) -> list:
+    ids = set(user_ids)
+    if not ids:
+        return []
+    return [record for record in _progress().find({}) if record.get("user_id") in ids]
+
+
+def list_active_roadmaps_for_users(user_ids) -> list:
+    ids = set(user_ids)
+    if not ids:
+        return []
+    return [
+        roadmap
+        for roadmap in _roadmaps().find({"status": "ACTIVE"})
+        if roadmap.get("user_id") in ids
+    ]
+
+
 def get_conversation(user_id: str) -> dict | None:
     return _mentor().find_one({"user_id": user_id})
 

@@ -20,7 +20,7 @@ def init_database(app) -> None:
             client.admin.command("ping")
             db = client[db_name]
             mode = "mongodb"
-        except Exception as exc:  # connection issues must not crash the demo
+        except Exception as exc:  # noqa: BLE001 - connection issues must not crash the demo
             logger.warning("MongoDB connection failed (%s). Using in-memory demo store.", exc)
 
     if db is None:

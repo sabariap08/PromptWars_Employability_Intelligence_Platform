@@ -1,6 +1,5 @@
 """Agent 3 - Skill Analysis: aggregates evidence into explainable proficiency."""
 from app.agents.base import BaseAgent
-from app.repositories import profiles_repo
 from app.services import career_service, skill_service
 
 

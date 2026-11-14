@@ -1,4 +1,7 @@
-﻿<!doctype html>
+﻿{%- macro nav_link(href, label, is_active) -%}
+<a href="{{ href }}" class="{% if is_active %}active{% endif %}"{% if is_active %} aria-current="page"{% endif %}>{{ label }}</a>
+{%- endmacro -%}
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -9,6 +12,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f766e'/><text x='32' y='43' font-family='Arial' font-size='30' font-weight='bold' text-anchor='middle' fill='white'>E</text></svg>">
 </head>
 <body data-page="{% block page_id %}{% endblock %}" data-role="{{ current_user.role }}">
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="{{ url_for('pages.dashboard_router') }}">
@@ -19,40 +23,40 @@
       <nav class="nav" aria-label="Workspace navigation">
         {% if current_user.role in ["STUDENT", "EMPLOYEE"] %}
           <span class="nav-label">Learning</span>
-          <a href="{{ url_for('pages.learner_dashboard') }}" class="{% if request.path == '/app/dashboard' %}active{% endif %}">Dashboard</a>
-          <a href="{{ url_for('pages.skills_page') }}" class="{% if request.path == '/app/skills' %}active{% endif %}">My skills</a>
-          <a href="{{ url_for('pages.projects_page') }}" class="{% if request.path == '/app/projects' %}active{% endif %}">My projects</a>
-          <a href="{{ url_for('pages.assessments_page') }}" class="{% if request.path == '/app/assessments' %}active{% endif %}">Assessments</a>
-          <a href="{{ url_for('pages.roadmap_page') }}" class="{% if request.path == '/app/roadmap' %}active{% endif %}">Learning roadmap</a>
-          <a href="{{ url_for('pages.courses_page') }}" class="{% if request.path == '/app/courses' and request.args.get('tab') != 'recommended' %}active{% endif %}">Course catalog</a>
-          <a href="{{ url_for('pages.courses_page', tab='recommended') }}" class="{% if request.path == '/app/courses' and request.args.get('tab') == 'recommended' %}active{% endif %}">Recommended courses</a>
-          <a href="{{ url_for('pages.leaderboard_page') }}" class="{% if request.path == '/app/leaderboard' %}active{% endif %}">Leaderboard</a>
-          <a href="{{ url_for('pages.readiness_page') }}" class="{% if request.path == '/app/readiness' %}active{% endif %}">Career development</a>
-          <a href="{{ url_for('pages.profile_page') }}" class="{% if request.path == '/app/profile' %}active{% endif %}">Profile &amp; evidence</a>
-          <a href="{{ url_for('pages.mentor_page') }}" class="{% if request.path == '/app/mentor' %}active{% endif %}">AI mentor</a>
+          {{ nav_link(url_for('pages.learner_dashboard'), 'Dashboard', request.path == '/app/dashboard') }}
+          {{ nav_link(url_for('pages.skills_page'), 'My skills', request.path == '/app/skills') }}
+          {{ nav_link(url_for('pages.projects_page'), 'My projects', request.path == '/app/projects') }}
+          {{ nav_link(url_for('pages.assessments_page'), 'Assessments', request.path == '/app/assessments') }}
+          {{ nav_link(url_for('pages.roadmap_page'), 'Learning roadmap', request.path == '/app/roadmap') }}
+          {{ nav_link(url_for('pages.courses_page'), 'Course catalog', request.path == '/app/courses' and request.args.get('tab') != 'recommended') }}
+          {{ nav_link(url_for('pages.courses_page', tab='recommended'), 'Recommended courses', request.path == '/app/courses' and request.args.get('tab') == 'recommended') }}
+          {{ nav_link(url_for('pages.leaderboard_page'), 'Leaderboard', request.path == '/app/leaderboard') }}
+          {{ nav_link(url_for('pages.readiness_page'), 'Career development', request.path == '/app/readiness') }}
+          {{ nav_link(url_for('pages.profile_page'), 'Profile & evidence', request.path == '/app/profile') }}
+          {{ nav_link(url_for('pages.mentor_page'), 'AI mentor', request.path == '/app/mentor') }}
           <span class="nav-label">Account</span>
-          <a href="{{ url_for('pages.notifications_page') }}" class="{% if request.path == '/app/notifications' %}active{% endif %}">Notifications</a>
+          {{ nav_link(url_for('pages.notifications_page'), 'Notifications', request.path == '/app/notifications') }}
         {% elif current_user.role in ["UNIVERSITY_ADMIN", "ORGANIZATION_ADMIN"] %}
           <span class="nav-label">Institution</span>
-          <a href="{{ url_for('pages.admin_page') }}" class="{% if request.path == '/app/admin' %}active{% endif %}">Overview</a>
-          <a href="{{ url_for('pages.requests_page') }}" class="{% if request.path == '/app/requests' %}active{% endif %}">Approval requests</a>
+          {{ nav_link(url_for('pages.admin_page'), 'Overview', request.path == '/app/admin') }}
+          {{ nav_link(url_for('pages.requests_page'), 'Approval requests', request.path == '/app/requests') }}
           <span class="nav-label">Content</span>
-          <a href="{{ url_for('pages.content_page', form='course') }}#add-course" class="{% if request.path == '/app/content' and request.args.get('form') == 'course' %}active{% endif %}">Add course</a>
-          <a href="{{ url_for('pages.content_page', form='question') }}#add-question" class="{% if request.path == '/app/content' and request.args.get('form') == 'question' %}active{% endif %}">Add questions</a>
+          {{ nav_link(url_for('pages.content_page', form='course') ~ '#add-course', 'Add course', request.path == '/app/content' and request.args.get('form') == 'course') }}
+          {{ nav_link(url_for('pages.content_page', form='question') ~ '#add-question', 'Add questions', request.path == '/app/content' and request.args.get('form') == 'question') }}
           <span class="nav-label">Account</span>
-          <a href="{{ url_for('pages.notifications_page') }}" class="{% if request.path == '/app/notifications' %}active{% endif %}">Notifications</a>
+          {{ nav_link(url_for('pages.notifications_page'), 'Notifications', request.path == '/app/notifications') }}
         {% elif current_user.role == "SUPER_ADMIN" %}
           <span class="nav-label">Platform</span>
-          <a href="{{ url_for('pages.platform_page') }}" class="{% if request.path == '/app/platform' %}active{% endif %}">Overview</a>
-          <a href="{{ url_for('pages.organizations_page') }}" class="{% if request.path == '/app/organizations' %}active{% endif %}">Organizations</a>
-          <a href="{{ url_for('pages.agents_page') }}" class="{% if request.path == '/app/agents' %}active{% endif %}">Agents &amp; executions</a>
+          {{ nav_link(url_for('pages.platform_page'), 'Overview', request.path == '/app/platform') }}
+          {{ nav_link(url_for('pages.organizations_page'), 'Organizations', request.path == '/app/organizations') }}
+          {{ nav_link(url_for('pages.agents_page'), 'Agents & executions', request.path == '/app/agents') }}
           <span class="nav-label">Content</span>
-          <a href="{{ url_for('pages.content_page', form='course') }}#add-course" class="{% if request.path == '/app/content' and request.args.get('form') == 'course' %}active{% endif %}">Add course</a>
-          <a href="{{ url_for('pages.content_page', form='question') }}#add-question" class="{% if request.path == '/app/content' and request.args.get('form') == 'question' %}active{% endif %}">Add questions</a>
+          {{ nav_link(url_for('pages.content_page', form='course') ~ '#add-course', 'Add course', request.path == '/app/content' and request.args.get('form') == 'course') }}
+          {{ nav_link(url_for('pages.content_page', form='question') ~ '#add-question', 'Add questions', request.path == '/app/content' and request.args.get('form') == 'question') }}
           <span class="nav-label">Tools</span>
-          <a href="{{ url_for('pages.settings_page') }}" class="{% if request.path == '/app/settings' %}active{% endif %}">Settings &amp; catalog</a>
+          {{ nav_link(url_for('pages.settings_page'), 'Settings & catalog', request.path == '/app/settings') }}
           <span class="nav-label">Account</span>
-          <a href="{{ url_for('pages.notifications_page') }}" class="{% if request.path == '/app/notifications' %}active{% endif %}">Notifications</a>
+          {{ nav_link(url_for('pages.notifications_page'), 'Notifications', request.path == '/app/notifications') }}
         {% endif %}
       </nav>
 
@@ -82,17 +86,17 @@
         </div>
       </header>
 
-      <main class="content">
+      <main class="content" id="main" tabindex="-1">
         {% block content %}{% endblock %}
       </main>
 
       <footer class="app-foot">
-        {{ app_name }} Â· PromptWars Ã— RTC Â· {% if db_mode == "memory" %}demo data resets on restart{% else %}MongoDB Atlas{% endif %}
+        {{ app_name }} · PromptWars × RTC · {% if db_mode == "memory" %}demo data resets on restart{% else %}MongoDB Atlas{% endif %}
       </footer>
     </div>
   </div>
 
-  <div id="toast-host" class="toast-host"></div>
+  <div id="toast-host" class="toast-host" role="status" aria-live="polite" aria-atomic="false"></div>
   <script src="{{ url_for('static', filename='js/api.js') }}"></script>
   <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>

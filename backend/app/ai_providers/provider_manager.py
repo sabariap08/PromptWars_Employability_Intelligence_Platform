@@ -32,7 +32,7 @@ class ProviderManager:
             fallback = [item.strip().lower() for item in fallback_raw.split(",") if item.strip()]
         else:
             fallback = [str(item).strip().lower() for item in fallback_raw]
-        order = [primary] + fallback if primary else fallback
+        order = [primary, *fallback] if primary else fallback
         self.order = []
         for name in order:
             if name in self.providers and name not in self.order:
@@ -68,7 +68,7 @@ class ProviderManager:
             except AIProviderError as exc:
                 self.last_errors[provider.name] = str(exc)
                 logger.warning("AI provider %s failed: %s", provider.name, exc)
-            except Exception as exc:  # defensive: never break a learner workflow
+            except Exception as exc:  # noqa: BLE001 - defensive: never break a learner workflow
                 self.last_errors[provider.name] = "Unexpected provider error."
                 logger.warning("AI provider %s unexpected error: %s", provider.name, type(exc).__name__)
         fallback = FallbackProvider(fallback_text).generate()

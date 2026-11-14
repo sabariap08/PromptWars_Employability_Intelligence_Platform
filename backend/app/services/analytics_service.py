@@ -27,7 +27,6 @@ def _learner_rows(org_id: str, learner_role: str) -> list:
         else:
             analysis = career_service.analyze(learner["_id"]) or {}
             readiness = analysis.get("readiness", 0)
-            summary = learning_repo.active_roadmap(learner["_id"])
             completion = 0
         rows.append(
             {
