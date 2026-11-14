@@ -1,0 +1,47 @@
+{% extends "app/layout.html" %}
+{% block page_id %}agents{% endblock %}
+{% block page_title %}Agents &amp; executions{% endblock %}
+{% block title %}Agents &amp; executions — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Agents &amp; executions</h1>
+    <p>Seven specialised agents orchestrated through workflow events. Every execution is logged.</p>
+  </div>
+  <button id="agents-refresh" class="btn btn-outline btn-sm" type="button">Refresh</button>
+</div>
+
+<div class="grid four">
+  <div class="stat-card"><div class="stat-label">Executions</div><div class="stat-value" id="ag-total">—</div><div class="stat-hint">Most recent window</div></div>
+  <div class="stat-card"><div class="stat-label">Successful</div><div class="stat-value" id="ag-success">—</div><div class="stat-hint" id="ag-rate">—</div></div>
+  <div class="stat-card"><div class="stat-label">Fallback rate</div><div class="stat-value" id="ag-fallback">—</div><div class="stat-hint">Deterministic fallback is expected without keys</div></div>
+  <div class="stat-card"><div class="stat-label">Average duration</div><div class="stat-value" id="ag-duration">—</div><div class="stat-hint">Milliseconds</div></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Agent registry</h2><span class="badge primary">7 agents</span></div>
+    <div id="agent-cards" class="stack"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Workflow triggers</h2></div>
+    <div id="workflow-list" class="stack"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Recent executions</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>When</th><th>Workflow</th><th>Agent</th><th>Status</th><th>Provider</th><th>Duration</th><th>Summary</th></tr></thead>
+      <tbody id="executions-body"></tbody>
+    </table>
+  </div>
+  <div id="executions-empty" class="hidden"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/agents.js') }}"></script>
+{% endblock %}

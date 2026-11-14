@@ -1,0 +1,167 @@
+{% extends "app/layout.html" %}
+{% block page_id %}profile{% endblock %}
+{% block page_title %}Profile &amp; evidence{% endblock %}
+{% block title %}Profile — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Profile &amp; evidence</h1>
+    <p>Everything the agents use lives here. More evidence means a more defensible readiness score.</p>
+  </div>
+  <span id="profile-completeness" class="badge primary">Completeness —</span>
+</div>
+
+<div id="profile-alert" class="alert warning hidden"></div>
+
+<div class="grid two">
+  <form id="profile-form" class="card" novalidate>
+    <div class="card-title"><h2>Goals &amp; context</h2></div>
+    <div class="form-grid">
+      <div class="form-grid two">
+        <div class="field">
+          <label for="profile-name">Full name</label>
+          <input id="profile-name" type="text" disabled>
+        </div>
+        <div class="field">
+          <label for="profile-email">Email</label>
+          <input id="profile-email" type="email" disabled>
+        </div>
+        <div class="field">
+          <label for="profile-phone">Phone</label>
+          <input id="profile-phone" name="phone" type="tel" placeholder="+91 90000 00000">
+        </div>
+        <div class="field">
+          <label for="profile-career">Target career</label>
+          <select id="profile-career" name="target_career_id" required></select>
+          <span class="hint">Readiness is measured against this role's required skills.</span>
+        </div>
+        <div class="field">
+          <label for="profile-hours">Weekly learning hours</label>
+          <input id="profile-hours" name="weekly_hours" type="number" min="1" max="40" value="6">
+        </div>
+        <div class="field">
+          <label for="profile-style">Preferred learning style</label>
+          <select id="profile-style" name="learning_style">
+            <option value="">Not set</option>
+            <option value="Visual">Visual</option>
+            <option value="Hands-on">Hands-on</option>
+            <option value="Reading">Reading</option>
+            <option value="Video">Video</option>
+            <option value="Mixed">Mixed</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="edu-fields"></div>
+
+      <div class="field">
+        <label for="profile-soft">Soft skills</label>
+        <input id="profile-soft" name="soft_skills" type="text" placeholder="Communication, teamwork, problem solving">
+        <span class="hint">Separate with commas. These are added as intermediate skills.</span>
+      </div>
+      <div class="field">
+        <label for="profile-interests">Interests</label>
+        <input id="profile-interests" name="interests" type="text" placeholder="Open source, data visualisation, mentoring">
+      </div>
+
+      <div class="form-actions">
+        <button id="profile-save" class="btn btn-primary" type="submit">Save profile</button>
+        <a class="btn btn-ghost" href="{{ url_for('pages.readiness_page') }}">View readiness</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-title"><h2>Skills</h2><span id="skills-count" class="badge">0 skills</span></div>
+      <form id="skill-form" class="row" novalidate>
+        <input id="skill-name" name="name" type="text" placeholder="Skill name" style="flex:2" required>
+        <select id="skill-level" name="level" style="flex:1">
+          <option value="BEGINNER">Beginner</option>
+          <option value="INTERMEDIATE">Intermediate</option>
+          <option value="ADVANCED">Advanced</option>
+        </select>
+        <button id="skill-add" class="btn btn-primary" type="submit">Add</button>
+      </form>
+      <div id="skills-list" class="stack" style="margin-top:0.8rem"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><h2>Evidence</h2></div>
+      <div id="evidence-summary" class="context-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Certifications</h2><span class="badge">Verification checks</span></div>
+    <div id="cert-list" class="stack"></div>
+    <hr>
+    <form id="cert-form" class="form-grid" novalidate>
+      <h3>Add a certification</h3>
+      <div class="form-grid two">
+        <div class="field">
+          <label for="cert-name">Certification name</label>
+          <input id="cert-name" name="name" type="text" required placeholder="AWS Cloud Practitioner">
+        </div>
+        <div class="field">
+          <label for="cert-issuer">Issuer</label>
+          <input id="cert-issuer" name="issuer" type="text" required placeholder="Amazon Web Services">
+        </div>
+        <div class="field">
+          <label for="cert-date">Issued on</label>
+          <input id="cert-date" name="issued_on" type="date">
+        </div>
+        <div class="field">
+          <label for="cert-skills">Skills demonstrated</label>
+          <input id="cert-skills" name="skills" type="text" required placeholder="Cloud fundamentals, IAM">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cert-file">Certificate file (optional)</label>
+        <input id="cert-file" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg">
+        <span class="hint">PDF or image, up to the configured upload limit.</span>
+      </div>
+      <div class="form-actions">
+        <button id="cert-submit" class="btn btn-primary" type="submit">Submit certification</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>Projects</h2><span class="badge">Portfolio evidence</span></div>
+    <div id="project-list" class="stack"></div>
+    <hr>
+    <form id="project-form" class="form-grid" novalidate>
+      <h3>Add a project</h3>
+      <div class="field">
+        <label for="project-name">Project name</label>
+        <input id="project-name" name="name" type="text" required placeholder="Campus placement tracker">
+      </div>
+      <div class="field">
+        <label for="project-description">Description</label>
+        <textarea id="project-description" name="description" rows="3" required placeholder="What problem it solves, your approach, the outcome (at least 40 characters)."></textarea>
+      </div>
+      <div class="form-grid two">
+        <div class="field">
+          <label for="project-tech">Technologies</label>
+          <input id="project-tech" name="technologies" type="text" placeholder="Python, Flask, MongoDB">
+        </div>
+        <div class="field">
+          <label for="project-repo">Repository / demo URL</label>
+          <input id="project-repo" name="repo_url" type="url" placeholder="https://github.com/...">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="project-submit" class="btn btn-primary" type="submit">Submit project</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/profile.js') }}"></script>
+{% endblock %}

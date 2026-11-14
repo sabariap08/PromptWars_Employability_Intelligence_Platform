@@ -1,0 +1,81 @@
+{% extends "app/layout.html" %}
+{% block page_id %}assessments{% endblock %}
+{% block page_title %}Assessments{% endblock %}
+{% block title %}Assessments — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div id="assessment-view">
+  <div class="page-head">
+    <div>
+      <h1>Assessments</h1>
+      <p>Baseline, skill checks and evidence verification. Scoring is deterministic; agents explain the gaps.</p>
+    </div>
+    <div class="row">
+      <button id="refresh-btn" class="btn btn-outline btn-sm" type="button">Refresh</button>
+      <button id="baseline-btn" class="btn btn-primary btn-sm" type="button">Generate baseline</button>
+    </div>
+  </div>
+
+  <div id="assessment-alert" class="alert warning hidden"></div>
+
+  <div class="grid two">
+    <div class="card">
+      <div class="card-title"><h2>Skill check</h2><span class="badge">Up to 4 skills</span></div>
+      <form id="skill-check-form" class="form-grid" novalidate>
+        <div class="field">
+          <label for="skill-check-title">Title (optional)</label>
+          <input id="skill-check-title" type="text" placeholder="Targeted practice check">
+        </div>
+        <div class="field">
+          <label>Choose skills</label>
+          <div id="skill-check-options" class="stack"></div>
+          <span class="hint">Only skills on your profile can be checked.</span>
+        </div>
+        <div class="form-actions">
+          <button id="skill-check-submit" class="btn btn-primary" type="submit">Create skill check</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><h2>Available assessments</h2><span id="assessment-count" class="badge">—</span></div>
+      <div id="assessments-list" class="stack"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>Attempt history</h2></div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<div id="exam-view" class="hidden">
+  <div class="page-head">
+    <div>
+      <h1 id="exam-title">Assessment</h1>
+      <p id="exam-sub">Answer every question you can. Your progress is saved when you submit.</p>
+    </div>
+    <div class="exam-bar">
+      <span id="exam-status" class="badge warning">In progress</span>
+      <span id="exam-timer" class="timer">--:--</span>
+      <button id="exam-exit" class="btn btn-ghost btn-sm" type="button">Back to assessments</button>
+    </div>
+  </div>
+
+  <div id="exam-result" class="hidden"></div>
+
+  <form id="exam-form" class="exam-shell" novalidate>
+    <div id="exam-questions" class="stack"></div>
+    <div class="card">
+      <div class="row between">
+        <span class="small muted" id="exam-integrity">Tab switches: 0 · Visibility changes: 0</span>
+        <button id="exam-submit" class="btn btn-primary" type="submit">Submit assessment</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/assessments.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "app/layout.html" %}
+{% block page_id %}settings{% endblock %}
+{% block page_title %}Settings &amp; catalog{% endblock %}
+{% block title %}Settings — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Settings &amp; catalog</h1>
+    <p>AI provider routing, catalog administration and platform configuration.</p>
+  </div>
+  <span id="settings-dbmode" class="badge">Database —</span>
+</div>
+
+<div id="settings-alert" class="alert warning hidden"></div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Provider status</h2><span class="badge info">Order applied at runtime</span></div>
+    <div id="provider-status" class="stack"></div>
+    <hr>
+    <form id="provider-form" class="form-grid" novalidate>
+      <h3>Routing</h3>
+      <div class="field">
+        <label for="primary-provider">Primary provider</label>
+        <select id="primary-provider"><option value="">Automatic</option></select>
+        <span class="hint">Leave automatic to use the best available provider.</span>
+      </div>
+      <div class="field">
+        <label for="fallback-order">Fallback order</label>
+        <input id="fallback-order" type="text" placeholder="groq, gemini, openrouter, huggingface, ollama">
+        <span class="hint">Comma-separated provider keys. Deterministic fallback is always last.</span>
+      </div>
+      <div class="form-actions">
+        <button id="provider-save" class="btn btn-primary" type="submit">Save routing</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>Catalog</h2><span class="badge primary">Seeded + custom</span></div>
+    <div class="grid two">
+      <div class="stat-card"><div class="stat-label">Skills</div><div class="stat-value" id="count-skills">—</div></div>
+      <div class="stat-card"><div class="stat-label">Careers</div><div class="stat-value" id="count-careers">—</div></div>
+      <div class="stat-card"><div class="stat-label">Resources</div><div class="stat-value" id="count-resources">—</div></div>
+      <div class="stat-card"><div class="stat-label">Questions</div><div class="stat-value" id="count-questions">—</div></div>
+    </div>
+    <p class="small muted" style="margin-top:0.8rem">
+      Seeding happens automatically when the catalog is empty. Additions below are audited as super-admin actions.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Add catalog items</h2></div>
+  <div class="stack">
+    <details>
+      <summary><strong>Skill</strong></summary>
+      <form id="skill-catalog-form" class="form-grid" style="margin-top:0.8rem" novalidate>
+        <div class="form-grid two">
+          <div class="field"><label for="cat-skill-name">Name</label><input id="cat-skill-name" required placeholder="Docker"></div>
+          <div class="field"><label for="cat-skill-category">Category</label><input id="cat-skill-category" placeholder="DevOps"></div>
+        </div>
+        <div class="field"><label for="cat-skill-desc">Description</label><input id="cat-skill-desc" placeholder="Containerisation and image management"></div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save skill</button></div>
+      </form>
+    </details>
+
+    <details>
+      <summary><strong>Learning resource</strong></summary>
+      <form id="resource-form" class="form-grid" style="margin-top:0.8rem" novalidate>
+        <div class="form-grid two">
+          <div class="field"><label for="res-title">Title</label><input id="res-title" required placeholder="Docker getting started"></div>
+          <div class="field"><label for="res-url">URL</label><input id="res-url" type="url" required placeholder="https://docs.docker.com/get-started/"></div>
+          <div class="field"><label for="res-provider">Provider</label><input id="res-provider" placeholder="Docker"></div>
+          <div class="field">
+            <label for="res-type">Type</label>
+            <select id="res-type">
+              <option>TUTORIAL</option><option>VIDEO</option><option>PRACTICE</option>
+              <option>PROJECT</option><option>DOCUMENTATION</option><option>COURSE</option>
+            </select>
+          </div>
+          <div class="field"><label for="res-skills">Skills</label><input id="res-skills" placeholder="Docker, containers"></div>
+          <div class="field">
+            <label for="res-difficulty">Difficulty</label>
+            <select id="res-difficulty"><option>BEGINNER</option><option>INTERMEDIATE</option><option>ADVANCED</option></select>
+          </div>
+          <div class="field"><label for="res-hours">Duration (hours)</label><input id="res-hours" type="number" min="0.5" step="0.5" value="4"></div>
+          <div class="field"><label for="res-desc">Description</label><input id="res-desc" placeholder="Short description"></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save resource</button></div>
+      </form>
+    </details>
+
+    <details>
+      <summary><strong>Career role</strong></summary>
+      <form id="career-form" class="form-grid" style="margin-top:0.8rem" novalidate>
+        <div class="form-grid two">
+          <div class="field"><label for="car-name">Name</label><input id="car-name" required placeholder="Backend Developer"></div>
+          <div class="field"><label for="car-level">Experience level</label><input id="car-level" placeholder="Entry level"></div>
+        </div>
+        <div class="field"><label for="car-required">Required skills</label><input id="car-required" placeholder="Python, SQL, REST APIs"></div>
+        <div class="field"><label for="car-preferred">Preferred skills</label><input id="car-preferred" placeholder="Docker, AWS"></div>
+        <div class="field"><label for="car-desc">Description</label><textarea id="car-desc" rows="2" placeholder="What the role involves"></textarea></div>
+        <div class="field"><label for="car-expectations">Project expectations</label><textarea id="car-expectations" rows="2" placeholder="Portfolio expectations"></textarea></div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Create career</button></div>
+      </form>
+    </details>
+
+    <details>
+      <summary><strong>Assessment question</strong></summary>
+      <form id="question-form" class="form-grid" style="margin-top:0.8rem" novalidate>
+        <div class="form-grid two">
+          <div class="field"><label for="q-skill">Skill</label><input id="q-skill" required placeholder="Python"></div>
+          <div class="field">
+            <label for="q-type">Type</label>
+            <select id="q-type"><option>FACTUAL</option><option>SCENARIO</option><option>PRACTICAL</option></select>
+          </div>
+          <div class="field">
+            <label for="q-difficulty">Difficulty</label>
+            <select id="q-difficulty"><option>EASY</option><option>MEDIUM</option><option>HARD</option></select>
+          </div>
+          <div class="field"><label for="q-points">Points</label><input id="q-points" type="number" min="1" value="1"></div>
+        </div>
+        <div class="field"><label for="q-prompt">Prompt</label><textarea id="q-prompt" rows="3" required placeholder="Question text"></textarea></div>
+        <div class="field"><label for="q-options">Options (pipe separated)</label><input id="q-options" placeholder="Option A|Option B|Option C|Option D"></div>
+        <div class="form-grid two">
+          <div class="field"><label for="q-correct">Correct option</label><input id="q-correct" placeholder="A" value="A"></div>
+          <div class="field"><label for="q-keywords">Correct keywords (practical)</label><input id="q-keywords" placeholder="list, comprehension"></div>
+        </div>
+        <div class="field"><label for="q-explanation">Explanation</label><textarea id="q-explanation" rows="2" placeholder="Why the answer is correct"></textarea></div>
+        <div class="form-actions"><button class="btn btn-primary btn-sm" type="submit">Save question</button></div>
+      </form>
+    </details>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/settings.js') }}"></script>
+{% endblock %}

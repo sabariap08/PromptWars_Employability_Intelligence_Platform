@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block page_id %}login{% endblock %}
+{% block title %}Sign in — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="card">
+      <div class="auth-head">
+        <h1>Welcome back</h1>
+        <p>Sign in to your employability workspace.</p>
+      </div>
+
+      <div id="login-error" class="alert danger hidden" role="alert"></div>
+
+      <div class="demo-fill" aria-label="Demo accounts">
+        <button type="button" class="btn btn-outline btn-sm" data-demo-email="aarav@eip.local">Student</button>
+        <button type="button" class="btn btn-outline btn-sm" data-demo-email="rathinam.admin@eip.local">University admin</button>
+        <button type="button" class="btn btn-outline btn-sm" data-demo-email="nova.admin@eip.local">Company admin</button>
+        <button type="button" class="btn btn-outline btn-sm" data-demo-email="employee@eip.local">Expert</button>
+        <button type="button" class="btn btn-outline btn-sm" data-demo-email="superadmin@eip.local">Super admin</button>
+      </div>
+
+      <form id="login-form" novalidate>
+        <input type="hidden" id="next-url" value="{{ next_url }}">
+        <div class="form-grid">
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your password">
+          </div>
+          <button id="login-submit" class="btn btn-primary btn-block" type="submit">Sign in</button>
+        </div>
+      </form>
+
+      <p class="auth-switch">
+        New to EIP? <a href="{{ url_for('pages.register_student_page') }}">Join as a learner</a>
+        or <a href="{{ url_for('pages.register_university_page') }}">register your institution</a>.
+      </p>
+    </div>
+    <p class="small center muted" style="margin-top:0.8rem">
+      Demo accounts use password <strong>Demo@12345</strong>.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

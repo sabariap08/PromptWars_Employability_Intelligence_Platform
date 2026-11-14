@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block page_id %}verify{% endblock %}
+{% block body_attrs %}data-token="{{ token }}"{% endblock %}
+{% block title %}Verify email — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="card">
+      <div class="auth-head">
+        <h1>Email verification</h1>
+        <p>We confirm your address before your registration goes to an administrator.</p>
+      </div>
+      <div id="verify-status" class="alert info">Verifying your email address…</div>
+      <div class="form-actions" style="margin-top:1rem">
+        <a class="btn btn-outline" href="{{ url_for('pages.login_page') }}">Back to sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

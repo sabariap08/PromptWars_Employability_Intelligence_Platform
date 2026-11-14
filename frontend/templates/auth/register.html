@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block page_id %}register{% endblock %}
+{% block body_attrs %}data-mode="{{ mode }}"{% endblock %}
+
+{% set is_learner = mode in ["student", "employee"] %}
+{% set is_university = mode == "university" %}
+{% if mode == "student" %}
+  {% set heading = "Student registration" %}
+  {% set subtitle = "Join your university's workspace and start building verified employability evidence." %}
+{% elif mode == "employee" %}
+  {% set heading = "Employee registration" %}
+  {% set subtitle = "Join your company's workspace to map skills, close gaps and mentor learners." %}
+{% elif mode == "university" %}
+  {% set heading = "Register your university" %}
+  {% set subtitle = "Create an institution workspace for students, departments and faculty reviewers." %}
+{% else %}
+  {% set heading = "Register your company" %}
+  {% set subtitle = "Create an organisation workspace to develop employees and review learner evidence." %}
+{% endif %}
+
+{% block title %}{{ heading }} — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card wide">
+    <div class="card">
+      <div class="auth-head">
+        <h1>{{ heading }}</h1>
+        <p>{{ subtitle }}</p>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <a class="tab {% if mode == 'student' %}active{% endif %}" href="{{ url_for('pages.register_student_page') }}">Student</a>
+        <a class="tab {% if mode == 'employee' %}active{% endif %}" href="{{ url_for('pages.register_employee_page') }}">Employee</a>
+        <a class="tab {% if mode == 'university' %}active{% endif %}" href="{{ url_for('pages.register_university_page') }}">University</a>
+        <a class="tab {% if mode == 'organization' %}active{% endif %}" href="{{ url_for('pages.register_organization_page') }}">Company</a>
+      </div>
+
+      <div id="register-error" class="alert danger hidden" role="alert"></div>
+
+      <form id="register-form" novalidate>
+        <div class="form-grid">
+
+          {% if is_learner %}
+            <fieldset>
+              <legend>Personal details</legend>
+              <div class="form-grid two">
+                <div class="field">
+                  <label for="full_name">Full name</label>
+                  <input id="full_name" name="full_name" type="text" autocomplete="name" required placeholder="Your full name">
+                </div>
+                <div class="field">
+                  <label for="email">Email address</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+                </div>
+                <div class="field">
+                  <label for="phone">Phone number</label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+91 90000 00000">
+                </div>
+                {% if mode == "student" %}
+                <div class="field">
+                  <label for="roll_number">Roll number</label>
+                  <input id="roll_number" name="roll_number" type="text" required placeholder="e.g. 21CS1042">
+                </div>
+                {% endif %}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>{{ "University" if mode == "student" else "Employer" }}</legend>
+              <div class="form-grid two">
+                <div class="field combo">
+                  <label for="org-search">Search approved {{ "universities" if mode == "student" else "companies" }}</label>
+                  <input id="org-search" type="search" autocomplete="off" placeholder="Start typing a name or city…">
+                  <input type="hidden" name="organization_id" value="">
+                  <div id="org-results" class="combo-results hidden"></div>
+                  <div id="org-selected" class="selected-org hidden"></div>
+                  <span class="hint">Only approved organisations appear. Ask your admin if yours is missing.</span>
+                </div>
+                <div class="field">
+                  <label for="department_id">Department</label>
+                  <select id="department_id" name="department_id" required>
+                    <option value="">Select an organization first</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>{{ "Education" if mode == "student" else "Employment" }}</legend>
+              {% if mode == "student" %}
+                <div class="form-grid two">
+                  <div class="field">
+                    <label for="degree">Degree / programme</label>
+                    <input id="degree" name="degree" type="text" required placeholder="B.E. Computer Science">
+                  </div>
+                  <div class="field">
+                    <label for="academic_year">Academic year</label>
+                    <input id="academic_year" name="academic_year" type="text" required placeholder="2023 – 2027">
+                  </div>
+                  <div class="field">
+                    <label for="year_of_study">Year of study</label>
+                    <select id="year_of_study" name="year_of_study" required>
+                      <option value="">Select year</option>
+                      <option>1st Year</option>
+                      <option>2nd Year</option>
+                      <option>3rd Year</option>
+                      <option>4th Year</option>
+                      <option>5th Year</option>
+                    </select>
+                  </div>
+                </div>
+              {% else %}
+                <div class="form-grid two">
+                  <div class="field">
+                    <label for="designation">Designation</label>
+                    <input id="designation" name="designation" type="text" required placeholder="Software Engineer">
+                  </div>
+                  <div class="field">
+                    <label for="employment_type">Employment type</label>
+                    <select id="employment_type" name="employment_type" required>
+                      <option value="">Select type</option>
+                      <option>Full-time</option>
+                      <option>Part-time</option>
+                      <option>Contract</option>
+                      <option>Internship</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="years_experience">Years of experience</label>
+                    <input id="years_experience" name="years_experience" type="text" required placeholder="e.g. 3">
+                  </div>
+                  <div class="field">
+                    <label for="interests">Interests (optional)</label>
+                    <input id="interests" name="interests" type="text" placeholder="Cloud, data engineering, mentoring">
+                    <span class="hint">Separate with commas.</span>
+                  </div>
+                </div>
+              {% endif %}
+            </fieldset>
+          {% else %}
+            <fieldset>
+              <legend>{{ "University details" if is_university else "Company details" }}</legend>
+              <div class="form-grid two">
+                <div class="field">
+                  <label for="name">{{ "University / college name" if is_university else "Company name" }}</label>
+                  <input id="name" name="name" type="text" required placeholder="{{ 'Rathinam Technical Campus' if is_university else 'Nova Systems' }}">
+                </div>
+                <div class="field">
+                  <label for="official_email">Official email</label>
+                  <input id="official_email" name="official_email" type="email" required placeholder="office@institution.edu">
+                </div>
+                <div class="field">
+                  <label for="subtype">Type</label>
+                  <select id="subtype" name="subtype">
+                    <option value="">Select type</option>
+                    {% if is_university %}
+                      <option>University</option>
+                      <option>Autonomous College</option>
+                      <option>Affiliated College</option>
+                      <option>Institute</option>
+                    {% else %}
+                      <option>Private Limited</option>
+                      <option>Public Limited</option>
+                      <option>Startup</option>
+                      <option>Non-profit</option>
+                    {% endif %}
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="industry">{{ "Focus area" if is_university else "Industry" }}</label>
+                  <input id="industry" name="industry" type="text" placeholder="{{ 'Engineering & technology' if is_university else 'Information technology' }}">
+                </div>
+                <div class="field">
+                  <label for="website">Website</label>
+                  <input id="website" name="website" type="url" placeholder="https://example.com">
+                </div>
+                <div class="field">
+                  <label for="contact_number">Contact number</label>
+                  <input id="contact_number" name="contact_number" type="tel" placeholder="+91 422 000 0000">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Location</legend>
+              <div class="form-grid two">
+                <div class="field">
+                  <label for="city">City</label>
+                  <input id="city" name="city" type="text" required placeholder="Coimbatore">
+                </div>
+                <div class="field">
+                  <label for="state">State</label>
+                  <input id="state" name="state" type="text" required placeholder="Tamil Nadu">
+                </div>
+                <div class="field">
+                  <label for="district">District</label>
+                  <input id="district" name="district" type="text" placeholder="Coimbatore">
+                </div>
+                <div class="field">
+                  <label for="country">Country</label>
+                  <input id="country" name="country" type="text" required value="India">
+                </div>
+                <div class="field" style="grid-column:1 / -1">
+                  <label for="address">Address</label>
+                  <textarea id="address" name="address" rows="2" placeholder="Street, campus, postal code"></textarea>
+                </div>
+                <div class="field">
+                  <label for="registration_identifier">{{ "AICTE / UGC code" if is_university else "Registration / GSTIN" }}</label>
+                  <input id="registration_identifier" name="registration_identifier" type="text" placeholder="Optional but speeds up verification">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Administrator account</legend>
+              <div class="form-grid two">
+                <div class="field">
+                  <label for="admin_name">Administrator name</label>
+                  <input id="admin_name" name="admin_name" type="text" required placeholder="Full name">
+                </div>
+                <div class="field">
+                  <label for="admin_email">Administrator email</label>
+                  <input id="admin_email" name="admin_email" type="email" required placeholder="admin@institution.edu">
+                </div>
+                <div class="field">
+                  <label for="admin_phone">Administrator phone</label>
+                  <input id="admin_phone" name="admin_phone" type="tel" placeholder="+91 90000 00000">
+                </div>
+                <div class="field">
+                  <label for="admin_designation">Administrator designation</label>
+                  <input id="admin_designation" name="admin_designation" type="text" placeholder="Placement Director">
+                </div>
+              </div>
+            </fieldset>
+          {% endif %}
+
+          <fieldset>
+            <legend>Security</legend>
+            <div class="form-grid two">
+              <div class="field">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="Create a password">
+                <span class="hint">At least 8 characters, including a letter and a number.</span>
+              </div>
+              <div class="field">
+                <label for="confirm_password">Confirm password</label>
+                <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required placeholder="Repeat the password">
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button id="register-submit" class="btn btn-primary" type="submit">Create account</button>
+            <a class="btn btn-ghost" href="{{ url_for('pages.login_page') }}">I already have an account</a>
+          </div>
+          <p class="small muted">
+            By registering you agree to your institution's data policy. Email verification is
+            required before approval. Demo mode shows the verification link on screen.
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <div id="register-result" class="card hidden" style="margin-top:1rem"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

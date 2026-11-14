@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block page_id %}landing{% endblock %}
+{% block title %}{{ app_name }} — Verified employability, not guesswork{% endblock %}
+
+{% block body %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">PromptWars × RTC · Track: Employability</span>
+      <h1>Turn learning into <span class="accent">verifiable employability</span>.</h1>
+      <p class="lead">
+        EIP connects universities, employers, industry experts and learners in one workspace.
+        Seven specialised AI agents assess skills, build explainable readiness scores, and adapt
+        every learner's roadmap — while humans keep approval authority.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ url_for('pages.register_student_page') }}">Create a learner account</a>
+        <a class="btn btn-outline" href="{{ url_for('pages.register_university_page') }}">Register an institution</a>
+      </div>
+      <p class="hero-note">
+        Already onboarded? <a href="{{ url_for('pages.login_page') }}">Sign in</a>.
+        Demo accounts are available on the sign-in page.
+      </p>
+      <div class="row" style="margin-top:1.4rem">
+        <span class="badge primary">7 collaborating agents</span>
+        <span class="badge">Explainable scoring</span>
+        <span class="badge">Two-level approvals</span>
+        <span class="badge">CSRF + role guards</span>
+      </div>
+    </div>
+    <aside class="hero-panel" aria-label="Agent pipeline preview">
+      <div class="panel-head"><span>Agent pipeline</span><span class="badge success">Live</span></div>
+      <div class="agent-mini">
+        <div class="agent-row"><span class="num">1</span><div><strong>Profile Intelligence</strong><small>Completeness, evidence quality, target fit</small></div></div>
+        <div class="agent-row"><span class="num">2</span><div><strong>Assessment Design</strong><small>Baseline &amp; skill-check generation</small></div></div>
+        <div class="agent-row"><span class="num">3</span><div><strong>Skill Analysis</strong><small>Topic gaps with explainable signals</small></div></div>
+        <div class="agent-row"><span class="num">4</span><div><strong>Career Intelligence</strong><small>Readiness against real role requirements</small></div></div>
+        <div class="agent-row"><span class="num">5</span><div><strong>Learning Recommendation</strong><small>Adaptive phased roadmap</small></div></div>
+        <div class="agent-row"><span class="num">6</span><div><strong>Progress Evaluation</strong><small>Evidence-weighted momentum</small></div></div>
+        <div class="agent-row"><span class="num">7</span><div><strong>AI Mentor</strong><small>Context-grounded coaching</small></div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section" id="how" style="background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head">
+      <h2>How the platform works</h2>
+      <p>Every stage produces evidence that feeds the next. Nothing is a dead end — assessments, projects and trainer feedback all change readiness.</p>
+    </div>
+    <div class="grid four">
+      <div class="card step"><span class="num">1</span><h3>Join an approved institution</h3><p class="muted small">Learners register under a university or company. Admins approve memberships after email verification.</p></div>
+      <div class="card step"><span class="num">2</span><h3>Build an evidence profile</h3><p class="muted small">Skills, certifications, projects and a target role create the context every agent uses.</p></div>
+      <div class="card step"><span class="num">3</span><h3>Take a baseline assessment</h3><p class="muted small">Deterministic scoring plus agent analysis produces explainable topic-level gaps.</p></div>
+      <div class="card step"><span class="num">4</span><h3>Follow an adaptive roadmap</h3><p class="muted small">Tasks adapt as new evidence arrives. Industry experts verify practical checkpoints.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="roles">
+  <div class="container">
+    <div class="section-head">
+      <h2>One platform, five roles</h2>
+      <p>Scoped access and organisation-level isolation are enforced on every API route, not just in the interface.</p>
+    </div>
+    <div class="grid three">
+      <div class="card role-card">
+        <span class="tag">Learners</span>
+        <h3>Students &amp; employees</h3>
+        <ul>
+          <li>Evidence-based profile and readiness score</li>
+          <li>Baseline and skill-check assessments</li>
+          <li>Adaptive roadmap with practical checkpoints</li>
+          <li>Context-aware AI mentor and notifications</li>
+        </ul>
+      </div>
+      <div class="card role-card">
+        <span class="tag">Institutions</span>
+        <h3>University &amp; company admins</h3>
+        <ul>
+          <li>Approve memberships and expert reviewers</li>
+          <li>Cohort readiness, gaps and departments</li>
+          <li>Assign trainers to specific learners</li>
+          <li>Audit trail scoped to their organisation</li>
+        </ul>
+      </div>
+      <div class="card role-card">
+        <span class="tag">Industry</span>
+        <h3>Experts &amp; platform owners</h3>
+        <ul>
+          <li>Expert feedback becomes verified evidence</li>
+          <li>Cross-institution review by explicit assignment</li>
+          <li>Super admin approves universities and companies</li>
+          <li>Provider, agent and execution monitoring</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="agents" style="background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head">
+      <h2>Explainable by design</h2>
+      <p>Scoring is deterministic and auditable. AI providers add narrative and recommendations, with a deterministic fallback when no key is configured.</p>
+    </div>
+    <div class="grid two">
+      <div class="card">
+        <h3>Readiness you can defend</h3>
+        <p class="muted">Required and preferred skills are weighted, then adjusted for verification strength: self-reported, partial, verified by assessment, or verified by a trainer.</p>
+        <div class="skill-line"><div class="skill-top"><strong>Python</strong><span>Advanced · Verified</span></div><div class="progress"><span style="width:92%"></span></div></div>
+        <div class="skill-line"><div class="skill-top"><strong>SQL</strong><span>Advanced · Verified</span></div><div class="progress"><span style="width:80%"></span></div></div>
+        <div class="skill-line"><div class="skill-top"><strong>HTML / CSS</strong><span>Beginner · Gap</span></div><div class="progress amber"><span style="width:28%"></span></div></div>
+      </div>
+      <div class="card">
+        <h3>Human authority stays human</h3>
+        <p class="muted">AI recommends, people decide. Organisation registrations require super-admin approval, memberships require their institution admin, and expert assignment is explicit.</p>
+        <ul class="list-plain">
+          <li><span class="item-top"><span>Organisation approval</span><span class="badge warning">Super admin</span></span></li>
+          <li><span class="item-top"><span>Membership approval</span><span class="badge warning">Institution admin</span></span></li>
+          <li><span class="item-top"><span>Expert evidence</span><span class="badge success">Assigned reviewer</span></span></li>
+          <li><span class="item-top"><span>Assessment scoring</span><span class="badge primary">Deterministic</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid two">
+    <div class="demo-box">
+      <h2>Try the demo</h2>
+      <p>All demo accounts use the password <code>Demo@12345</code>.</p>
+      <div class="demo-list">
+        <div class="row-item"><span>Student</span><code>aarav@eip.local</code></div>
+        <div class="row-item"><span>University admin</span><code>rathinam.admin@eip.local</code></div>
+        <div class="row-item"><span>Company admin</span><code>nova.admin@eip.local</code></div>
+        <div class="row-item"><span>Industry expert</span><code>employee@eip.local</code></div>
+        <div class="row-item"><span>Super admin</span><code>superadmin@eip.local</code></div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem">
+        <a class="btn btn-amber" href="{{ url_for('pages.login_page') }}">Open sign in</a>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Built for the PromptWars × RTC brief</h3>
+      <p class="muted">A complete, runnable product: role-based onboarding, two-level approvals, adaptive learning, AI orchestration with fallbacks, audit logs, and a documented JSON API.</p>
+      <ul class="list-plain">
+        <li><span class="item-top"><span>Flask + MongoDB Atlas</span><span class="badge">Backend</span></span></li>
+        <li><span class="item-top"><span>Vanilla JS + server-rendered templates</span><span class="badge">Frontend</span></span></li>
+        <li><span class="item-top"><span>Multi-provider AI with deterministic fallback</span><span class="badge">Agents</span></span></li>
+        <li><span class="item-top"><span>Session auth, CSRF, rate limits, scoped roles</span><span class="badge success">Security</span></span></li>
+      </ul>
+      <div class="form-actions" style="margin-top:1rem">
+        <a class="btn btn-primary" href="{{ url_for('pages.register_university_page') }}">Register an institution</a>
+        <a class="btn btn-outline" href="{{ url_for('pages.register_student_page') }}">Join as a learner</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

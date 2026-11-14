@@ -1,0 +1,45 @@
+{% extends "app/layout.html" %}
+{% block page_id %}mentor{% endblock %}
+{% block page_title %}AI mentor{% endblock %}
+{% block title %}AI mentor — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>AI mentor</h1>
+    <p>Grounded in your profile, readiness, latest result and active plan. No invented scores.</p>
+  </div>
+  <span id="mentor-provider" class="badge info">Provider: —</span>
+</div>
+
+<div class="chat-layout">
+  <div class="card chat-card">
+    <div class="chat-head">
+      <div>
+        <strong>Mentor</strong>
+        <div class="small muted" id="mentor-context-line">Loading context…</div>
+      </div>
+      <span class="badge success">Context-grounded</span>
+    </div>
+    <div id="chat-log" class="chat-log"></div>
+    <div style="padding:0.6rem 0.8rem; border-top:1px solid var(--border); background:var(--surface)" id="mentor-suggestions"></div>
+    <form id="chat-form" class="chat-input" novalidate>
+      <textarea id="chat-input" placeholder="Ask about your gaps, next task or readiness…" maxlength="1200"></textarea>
+      <button id="chat-send" class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+
+  <aside class="card">
+    <div class="card-title"><h2>Your context</h2></div>
+    <div id="mentor-panel" class="context-list"></div>
+    <p class="small muted" style="margin-top:0.9rem">
+      The mentor sees only the facts summarised here. AI providers may be unavailable; the deterministic
+      fallback still answers from your data.
+    </p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/mentor.js') }}"></script>
+{% endblock %}

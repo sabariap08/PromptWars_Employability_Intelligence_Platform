@@ -1,0 +1,63 @@
+{% extends "app/layout.html" %}
+{% block page_id %}readiness{% endblock %}
+{% block page_title %}Readiness{% endblock %}
+{% block title %}Readiness — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Career readiness</h1>
+    <p>A weighted, explainable comparison of your evidence against your target role's requirements.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.profile_page') }}">Adjust target career</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.assessments_page') }}">Verify a skill</a>
+  </div>
+</div>
+
+<div id="readiness-empty" class="card hidden"></div>
+
+<div id="readiness-content" class="stack">
+  <div class="grid two">
+    <div class="card">
+      <div class="card-title"><h2 id="readiness-career">Target career</h2><span class="badge primary" id="readiness-badge">—</span></div>
+      <div class="row" style="align-items:flex-end; gap:1rem">
+        <div class="stat-value" id="readiness-score" style="font-size:3.4rem">—</div>
+        <div>
+          <div class="small muted">out of 100</div>
+          <div class="small muted" id="readiness-strong">—</div>
+        </div>
+      </div>
+      <div class="progress" style="margin-top:0.8rem; height:12px"><span id="readiness-bar" style="width:0%"></span></div>
+      <p class="small muted" style="margin-top:0.7rem">
+        Required skills are weighted. Verification strength (self-reported, partial, verified) adjusts how much each score counts.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-title"><h2>Signature strengths</h2></div>
+      <div id="readiness-strengths" class="stack"></div>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <div class="card-title"><h2>Gaps to close</h2><span class="badge warning" id="gaps-count">—</span></div>
+      <div id="readiness-gaps" class="stack"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><h2>All required skills</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Skill</th><th>Current</th><th>Required</th><th>Attainment</th><th>Status</th></tr></thead>
+          <tbody id="readiness-skills"></tbody>
+        </table>
+      </div>
+      <div id="preferred-skills" class="small muted" style="margin-top:0.8rem"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/readiness.js') }}"></script>
+{% endblock %}

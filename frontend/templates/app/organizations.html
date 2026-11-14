@@ -1,0 +1,42 @@
+{% extends "app/layout.html" %}
+{% block page_id %}organizations{% endblock %}
+{% block page_title %}Organizations{% endblock %}
+{% block title %}Organizations — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Organizations</h1>
+    <p>Universities and companies. New registrations require super-admin approval.</p>
+  </div>
+  <div class="row">
+    <input id="org-search" type="search" placeholder="Search name or city" style="width:230px">
+    <button id="org-refresh" class="btn btn-outline btn-sm" type="button">Refresh</button>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" data-status="PENDING_APPROVAL" type="button">Pending</button>
+  <button class="tab active" data-status="" type="button">All</button>
+  <button class="tab" data-status="APPROVED" type="button">Approved</button>
+  <button class="tab" data-status="REJECTED" type="button">Rejected</button>
+  <button class="tab" data-status="SUSPENDED" type="button">Suspended</button>
+</div>
+
+<div id="orgs-alert" class="alert warning hidden"></div>
+
+<div class="card">
+  <div class="card-title"><h2 id="orgs-title">Organizations</h2><span id="orgs-count" class="badge">—</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Status</th><th>Registered</th><th>Actions</th></tr></thead>
+      <tbody id="orgs-body"></tbody>
+    </table>
+  </div>
+  <div id="orgs-empty" class="hidden"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/organizations.js') }}"></script>
+{% endblock %}

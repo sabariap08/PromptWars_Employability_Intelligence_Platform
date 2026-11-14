@@ -1,0 +1,23 @@
+{% extends "app/layout.html" %}
+{% block page_id %}notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block title %}Notifications — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Notifications</h1>
+    <p>Approvals, readiness changes and expert feedback land here.</p>
+  </div>
+  <button id="mark-all" class="btn btn-outline btn-sm" type="button">Mark all as read</button>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Inbox</h2><span id="unread-badge" class="badge warning">—</span></div>
+  <div id="notification-list" class="stack"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/notifications.js') }}"></script>
+{% endblock %}

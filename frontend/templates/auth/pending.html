@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block page_id %}pending{% endblock %}
+{% block title %}Registration pending — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="card">
+      <div class="auth-head">
+        <h1>Registration received</h1>
+        <p>Your account is waiting for approval.</p>
+      </div>
+      <div class="alert info">
+        After verifying your email, your institution administrator reviews your membership.
+        You will receive a notification when a decision is made. In demo mode, sign in to
+        check your current status.
+      </div>
+      <div class="form-actions" style="margin-top:1rem">
+        <a class="btn btn-primary" href="{{ url_for('pages.login_page') }}">Go to sign in</a>
+        <a class="btn btn-outline" href="{{ url_for('pages.landing') }}">Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

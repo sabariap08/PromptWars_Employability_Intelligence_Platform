@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block page_id %}error{% endblock %}
+{% block title %}Request could not be completed — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="container error-page">
+  <div>
+    <div class="error-code">{{ status }}</div>
+    <h1>Request could not be completed</h1>
+    <p class="muted">{{ message or "Please go back and try again." }}</p>
+    <div class="form-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="{{ url_for('pages.dashboard_router') }}">Go to workspace</a>
+      <a class="btn btn-outline" href="{{ url_for('pages.landing') }}">Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

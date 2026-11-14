@@ -1,0 +1,61 @@
+{% extends "app/layout.html" %}
+{% block page_id %}dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block title %}Dashboard — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 id="dash-greeting">Welcome back</h1>
+    <p id="dash-sub">Loading your employability snapshot…</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.profile_page') }}">Edit profile</a>
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.assessments_page') }}">Assessments</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.roadmap_page') }}">Open roadmap</a>
+  </div>
+</div>
+
+<div id="dash-alert" class="alert warning hidden"></div>
+
+<div class="grid four" id="dash-stats">
+  <div class="stat-card"><div class="stat-label">Readiness</div><div class="stat-value" id="stat-readiness">—</div><div class="stat-hint" id="stat-career">No target career yet</div></div>
+  <div class="stat-card"><div class="stat-label">Roadmap completion</div><div class="stat-value" id="stat-completion">—</div><div class="stat-hint" id="stat-taskcount">—</div></div>
+  <div class="stat-card"><div class="stat-label">Verified skills</div><div class="stat-value" id="stat-verified">—</div><div class="stat-hint" id="stat-totalskills">—</div></div>
+  <div class="stat-card"><div class="stat-label">Assessments</div><div class="stat-value" id="stat-assessments">—</div><div class="stat-hint" id="stat-avgscore">—</div></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title">
+      <h2>Next steps</h2>
+      <a class="small" href="{{ url_for('pages.roadmap_page') }}">Full plan</a>
+    </div>
+    <div id="next-tasks" class="stack"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">
+      <h2>Skill readiness</h2>
+      <a class="small" href="{{ url_for('pages.readiness_page') }}">Details</a>
+    </div>
+    <div id="dash-strengths"></div>
+    <h3 class="small muted" style="margin-top:0.8rem">Priority gaps</h3>
+    <div id="dash-gaps"></div>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Recent assessments</h2><a class="small" href="{{ url_for('pages.assessments_page') }}">All</a></div>
+    <div id="dash-attempts"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Notifications</h2><a class="small" href="{{ url_for('pages.notifications_page') }}">All</a></div>
+    <div id="dash-notifications"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/dashboard.js') }}"></script>
+{% endblock %}

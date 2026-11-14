@@ -1,0 +1,46 @@
+{% extends "app/layout.html" %}
+{% block page_id %}roadmap{% endblock %}
+{% block page_title %}Learning roadmap{% endblock %}
+{% block title %}Roadmap — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Learning roadmap</h1>
+    <p>Phased, evidence-driven tasks. Completing a task and passing its checkpoint updates your readiness.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.assessments_page') }}">Assessments</a>
+    <button id="generate-btn" class="btn btn-primary btn-sm" type="button">Generate new plan</button>
+  </div>
+</div>
+
+<div id="roadmap-alert" class="alert warning hidden"></div>
+
+<div id="roadmap-empty" class="card hidden"></div>
+
+<div id="roadmap-content" class="stack">
+  <div class="grid four">
+    <div class="stat-card"><div class="stat-label">Completion</div><div class="stat-value" id="rm-completion">—</div><div class="stat-hint" id="rm-tasks">—</div></div>
+    <div class="stat-card"><div class="stat-label">Version</div><div class="stat-value" id="rm-version">—</div><div class="stat-hint" id="rm-trigger">—</div></div>
+    <div class="stat-card"><div class="stat-label">Estimated hours</div><div class="stat-value" id="rm-hours">—</div><div class="stat-hint">Remaining workload</div></div>
+    <div class="stat-card"><div class="stat-label">Readiness at planning</div><div class="stat-value" id="rm-readiness">—</div><div class="stat-hint" id="rm-career">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>Why this plan</h2></div>
+    <p id="rm-rationale" class="muted"></p>
+  </div>
+
+  <div id="roadmap-body" class="stack"></div>
+
+  <div class="card">
+    <div class="card-title"><h2>Version history</h2></div>
+    <div id="roadmap-versions" class="stack"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/roadmap.js') }}"></script>
+{% endblock %}

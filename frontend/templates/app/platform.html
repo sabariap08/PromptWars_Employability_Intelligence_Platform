@@ -1,0 +1,53 @@
+{% extends "app/layout.html" %}
+{% block page_id %}platform{% endblock %}
+{% block page_title %}Platform overview{% endblock %}
+{% block title %}Platform overview — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Platform overview</h1>
+    <p>Network health, approvals, agent activity and provider status.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.organizations_page') }}">Organizations</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.agents_page') }}">Agent operations</a>
+  </div>
+</div>
+
+<div class="grid four">
+  <div class="stat-card"><div class="stat-label">Organizations</div><div class="stat-value" id="pf-orgs">—</div><div class="stat-hint" id="pf-orgbreakdown">—</div></div>
+  <div class="stat-card"><div class="stat-label">Pending approvals</div><div class="stat-value" id="pf-pending">—</div><div class="stat-hint">Organizations awaiting review</div></div>
+  <div class="stat-card"><div class="stat-label">Users</div><div class="stat-value" id="pf-users">—</div><div class="stat-hint" id="pf-userpending">—</div></div>
+  <div class="stat-card"><div class="stat-label">Agent executions</div><div class="stat-value" id="pf-executions">—</div><div class="stat-hint" id="pf-success">—</div></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Users by role</h2></div>
+    <div id="pf-roles" class="context-list"></div>
+    <div class="form-actions" style="margin-top:0.8rem">
+      <a class="btn btn-outline btn-sm" href="{{ url_for('pages.organizations_page') }}">Manage organizations</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Organization status</h2></div>
+    <div id="pf-status" class="context-list"></div>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>AI providers</h2><a class="small" href="{{ url_for('pages.settings_page') }}">Configure</a></div>
+    <div id="pf-providers" class="stack"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Agent execution health</h2><a class="small" href="{{ url_for('pages.agents_page') }}">Details</a></div>
+    <div id="pf-agentstats" class="context-list"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/platform.js') }}"></script>
+{% endblock %}

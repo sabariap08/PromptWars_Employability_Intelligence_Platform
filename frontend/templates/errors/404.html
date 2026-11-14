@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block page_id %}error{% endblock %}
+{% block title %}Page not found — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="container error-page">
+  <div>
+    <div class="error-code">404</div>
+    <h1>We could not find that page</h1>
+    <p class="muted">The link may be outdated, or the page may have moved.</p>
+    <div class="form-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="{{ url_for('pages.dashboard_router') }}">Go to workspace</a>
+      <a class="btn btn-outline" href="{{ url_for('pages.landing') }}">Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

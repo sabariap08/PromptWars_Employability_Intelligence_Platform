@@ -1,0 +1,40 @@
+{% extends "app/layout.html" %}
+{% block page_id %}requests{% endblock %}
+{% block page_title %}Approval requests{% endblock %}
+{% block title %}Approval requests — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Approval requests</h1>
+    <p>Membership approvals for your institution. Email verification must be complete before approval.</p>
+  </div>
+  <div class="row">
+    <input id="request-search" type="search" placeholder="Search name or email" style="width:220px">
+    <button id="request-refresh" class="btn btn-outline btn-sm" type="button">Refresh</button>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab active" data-status="PENDING_APPROVAL" type="button">Pending</button>
+  <button class="tab" data-status="APPROVED" type="button">Approved</button>
+  <button class="tab" data-status="REJECTED" type="button">Rejected</button>
+</div>
+
+<div id="requests-alert" class="alert warning hidden"></div>
+
+<div class="card">
+  <div class="card-title"><h2 id="requests-title">Pending requests</h2><span id="requests-count" class="badge">—</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+      <tbody id="requests-body"></tbody>
+    </table>
+  </div>
+  <div id="requests-empty" class="hidden"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/requests.js') }}"></script>
+{% endblock %}

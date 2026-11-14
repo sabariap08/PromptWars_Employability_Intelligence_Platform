@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flask instance data (uploads, sqlite, sessions)
+instance/
+backend/instance/
+*.log
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node tooling (only if used locally)
+node_modules/

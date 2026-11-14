@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block page_id %}error{% endblock %}
+{% block title %}Something went wrong — {{ app_name }}{% endblock %}
+
+{% block body %}
+<div class="container error-page">
+  <div>
+    <div class="error-code">500</div>
+    <h1>Something went wrong on our side</h1>
+    <p class="muted">The error has been logged. Please try again, or return to your workspace.</p>
+    <div class="form-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="{{ url_for('pages.dashboard_router') }}">Go to workspace</a>
+      <a class="btn btn-outline" href="{{ url_for('pages.landing') }}">Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

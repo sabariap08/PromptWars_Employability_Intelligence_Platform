@@ -1,0 +1,67 @@
+{% extends "app/layout.html" %}
+{% block page_id %}admin{% endblock %}
+{% block page_title %}Institution overview{% endblock %}
+{% block title %}Institution overview — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 id="admin-title">Institution overview</h1>
+    <p id="admin-sub">Loading cohort analytics…</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-outline btn-sm" href="{{ url_for('pages.requests_page') }}">Approval requests</a>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('pages.learners_page') }}">Learners &amp; experts</a>
+  </div>
+</div>
+
+<div id="admin-alert" class="alert warning hidden"></div>
+
+<div class="grid four">
+  <div class="stat-card"><div class="stat-label">Approved learners</div><div class="stat-value" id="adm-learners">—</div><div class="stat-hint" id="adm-pending">—</div></div>
+  <div class="stat-card"><div class="stat-label">Average readiness</div><div class="stat-value" id="adm-readiness">—</div><div class="stat-hint">Across approved learners</div></div>
+  <div class="stat-card"><div class="stat-label">Assessments completed</div><div class="stat-value" id="adm-assessments">—</div><div class="stat-hint" id="adm-avgscore">—</div></div>
+  <div class="stat-card"><div class="stat-label">Roadmap completion</div><div class="stat-value" id="adm-completion">—</div><div class="stat-hint">Cohort average</div></div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Department breakdown</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Department</th><th>Learners</th><th>Avg readiness</th></tr></thead>
+        <tbody id="adm-departments"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Most common gaps</h2><span class="badge warning">Cohort</span></div>
+    <div id="adm-gaps" class="stack"></div>
+  </div>
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2>Top readiness</h2></div>
+    <div id="adm-top" class="stack"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h2>Needs support</h2><span class="badge info">Priority</span></div>
+    <div id="adm-support" class="stack"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><h2>Recent activity</h2><span class="badge">Audit</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>When</th><th>Action</th><th>Actor</th><th>Entity</th></tr></thead>
+      <tbody id="adm-audit"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/admin.js') }}"></script>
+{% endblock %}

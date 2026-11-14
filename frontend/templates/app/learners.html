@@ -1,0 +1,66 @@
+{% extends "app/layout.html" %}
+{% block page_id %}learners{% endblock %}
+{% block page_title %}Learners &amp; experts{% endblock %}
+{% block title %}Learners &amp; experts — {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Learners &amp; experts</h1>
+    <p>Review learner snapshots, enable expert capability and assign reviewers.</p>
+  </div>
+  <div class="row">
+    <input id="learner-search" type="search" placeholder="Search name or email" style="width:220px">
+    <button id="learner-refresh" class="btn btn-outline btn-sm" type="button">Refresh</button>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab active" data-status="APPROVED" type="button">Approved</button>
+  <button class="tab" data-status="PENDING_APPROVAL" type="button">Pending</button>
+  <button class="tab" data-status="" type="button">All</button>
+</div>
+
+<div id="learners-alert" class="alert warning hidden"></div>
+
+<div class="grid two">
+  <div class="card">
+    <div class="card-title"><h2 id="learners-title">Approved learners</h2><span id="learners-count" class="badge">—</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="learners-body"></tbody>
+      </table>
+    </div>
+    <div id="learners-empty" class="hidden"></div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-title"><h2>Expert reviewers</h2><span class="badge primary">Employees</span></div>
+      <div id="trainers-list" class="stack"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><h2>Assign a reviewer</h2></div>
+      <form id="assign-form" class="form-grid" novalidate>
+        <div class="field">
+          <label for="assign-trainer">Expert</label>
+          <select id="assign-trainer" required><option value="">Select an expert</option></select>
+        </div>
+        <div class="field">
+          <label for="assign-learner">Learner</label>
+          <select id="assign-learner" required><option value="">Select a learner</option></select>
+        </div>
+        <div class="form-actions">
+          <button id="assign-submit" class="btn btn-primary" type="submit">Assign</button>
+          <span class="small muted">Expert review is scoped to this explicit assignment.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/learners.js') }}"></script>
+{% endblock %}
